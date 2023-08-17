@@ -40,7 +40,7 @@ export function Welcome(){
         id="camVideo"
         autoPlay
         playsInline
-        muted
+       // muted
         className={styles.videoElement}
       />
       <audio
@@ -77,12 +77,12 @@ export function Welcome(){
         </button>
  
         {/* Mic */}
-        <button disabled={!fetchAudioStream.isCallable} onClick={fetchAudioStream}>
+        <button disabled={!fetchAudioStream.isCallable} onClick={(event) => fetchAudioStream()}>
           FETCH_AUDIO_STREAM
         </button>
  
-        {/* Webcam */}
-        <button disabled={!fetchVideoStream.isCallable} onClick={fetchVideoStream}>
+        {/* Webcam //(event) => fetchVideoStream() */}
+        <button disabled={!fetchVideoStream.isCallable} onClick={(event) => fetchVideoStream()}>
           FETCH_VIDEO_STREAM
         </button>
 
@@ -98,9 +98,6 @@ export function Welcome(){
           Produce Cam  
         </button>
  
-        <button disabled={!produceAudio.isCallable} onClick={() => produceAudio(micStream)}>
-          Produce Mic  
-        </button>
  
         <button disabled={!stopProducingVideo.isCallable} onClick={stopProducingVideo}>
           Stop Producing Cam  
