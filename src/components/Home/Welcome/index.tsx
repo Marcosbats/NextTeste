@@ -2,6 +2,7 @@ import styles from  './styles.module.scss'
 import { useHuddle01 } from '@huddle01/react';
 import { Video } from '@huddle01/react/components';
 import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers } from '@huddle01/react/hooks';
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 export function Welcome(){ 
@@ -106,6 +107,10 @@ export function Welcome(){
         <button disabled={!stopProducingAudio.isCallable} onClick={stopProducingAudio}>
           Stop Producing Mic  
         </button>
+
+        <Link href="/Auditorio" target='blank'>
+          <button>Auditorio</button>
+        </Link>
       </div>
     );
   };
