@@ -40,7 +40,7 @@ export function Welcome(){
         id="camVideo"
         autoPlay
         playsInline
-       // muted
+        muted
         className={styles.videoElement}
       />
       <audio
@@ -61,7 +61,7 @@ export function Welcome(){
                 <Video
                   key={peer.peerId}
                   peerId={peer.peerId}
-                  //track={peer.cam}
+                  track={peer.cam}
                   debug    
                 />
               </>
