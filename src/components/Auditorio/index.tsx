@@ -1,8 +1,8 @@
 import styles from  './styles.module.scss'
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
-import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers } from '@huddle01/react/hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useLobby, useRoom, usePeers } from '@huddle01/react/hooks';
+import { useEffect } from 'react';
 
 export function Auditorio(){ 
   const { initialize, isInitialized, roomState } = useHuddle01();
@@ -13,7 +13,7 @@ export function Auditorio(){
   useEffect(() => {
       // its preferable to use env vars to store projectId
       initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-      joinLobby('xey-rsqz-hxm');
+      joinLobby('xey-rsqz-hxm'); 
       
     }, []);
 
@@ -41,7 +41,7 @@ export function Auditorio(){
               track={peer.mic!} />
           ))}
       </div>    
-        <div className={styles.btnAuditorio}>
+      <div className={styles.btnAuditorio}>
         <button disabled={!joinRoom.isCallable} onClick={joinRoom}>
           JOIN_ROOM 
         </button>
@@ -49,8 +49,8 @@ export function Auditorio(){
         <button disabled={leaveRoom.isCallable} onClick={leaveRoom}>
           LEAVE_ROOM 
         </button> 
-        </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
  
