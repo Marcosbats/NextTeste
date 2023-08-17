@@ -61,7 +61,7 @@ export function Welcome(){
                 <Video
                   key={peer.peerId}
                   peerId={peer.peerId}
-                  track={peer.cam}
+                  track={peer.cam!}
                   debug    
                 />
               </>
