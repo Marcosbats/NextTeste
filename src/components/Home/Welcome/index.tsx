@@ -108,7 +108,7 @@ export function Welcome(){
           Stop Producing Mic  
         </button>
 
-        <Link href="/Auditorio" target='blank'>
+        <Link href="/auditorio" target='blank'>
           <button>Auditorio</button>
         </Link>
       </div>

@@ -28,8 +28,7 @@ export default function Home(){
       <main className={styles.mainContainer}>
           <Header />
           <Welcome />          
-          <Footer />
-        
+          <Footer />        
       </main>      
     </div>
   )
