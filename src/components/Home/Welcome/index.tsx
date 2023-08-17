@@ -76,7 +76,7 @@ export function Welcome(){
         }>
           Join Lobby
         </button>
- 
+
         {/* Mic */}
         <button disabled={!fetchAudioStream.isCallable} onClick={(event) => fetchAudioStream()}>
           FETCH_AUDIO_STREAM
@@ -108,8 +108,8 @@ export function Welcome(){
           Stop Producing Mic  
         </button>
 
-        <Link href="/auditorio" target='blank'>
-          <button>Auditorio</button>
+        <Link className={styles.btnAuditorio} href="/auditorio" target='blank' passHref>
+          Auditorio
         </Link>
       </div>
     );
