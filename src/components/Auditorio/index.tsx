@@ -248,12 +248,14 @@ export function Auditorio(){
               {buttonLabelAudio()}
           </button>
   
-          <h2>Usuários na Sala : {Object.values(peers).length}</h2> 
+          
 
         </div>
         
 
-        <input
+       {/*<h2>Usuários na Sala : {Object.values(peers).length}</h2> 
+       
+       <input
             type="text"
             placeholder="Your Room Id"
             value={displayNameText}
@@ -267,7 +269,7 @@ export function Auditorio(){
             }}
           >
             {`NOME ${displayNameError}`}
-          </button>
+          </button>*/}
       </div>  
     </div>    
   );
