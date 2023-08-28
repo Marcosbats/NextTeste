@@ -40,8 +40,14 @@ export function Welcome(){
   const [videoFunction, setVideoFunction] = useState('start'); // Pode ser 'start', 'play' ou 'stop'  
   const [audioFunction, setAudioFunction] = useState('start'); 
   //const [roomFunction, setRoomFunction] = useState('start'); 
-  const { startRecording, stopRecording, isStarting, inProgress, isStopping, error } = useRecording();
- 
+    const {
+    startRecording,
+    stopRecording,
+    isStarting,
+    inProgress,
+    error,
+    data: recordingData,
+  } = useRecording();
   const [isOpen, setOpen] = useState(false) // hamburguer
 
   const handleLinkClick = () => { //hamburguer
@@ -254,9 +260,14 @@ export function Welcome(){
               {buttonLabelAudio()}
           </button>
           
-          <button disabled={!startRecording} onClick={() => startRecording}>
-          START_RECORDING
-        </button>
+          <button
+            disabled={!startRecording}
+            onClick={() =>
+              startRecording(`${window.location.href}rec/${roomId}`)
+            }
+          >
+            {`Record ${error}`}
+          </button>
           {isStarting ? "Recording is starting": error} 
           <button disabled={!stopRecording} onClick={stopRecording}>
             Stop Record
