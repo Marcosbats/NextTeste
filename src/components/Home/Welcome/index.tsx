@@ -42,7 +42,7 @@ export function Welcome(){
   //const [roomFunction, setRoomFunction] = useState('start'); 
     const {
     startRecording,
-    stoprecording,
+    stopRecording,
     isStarting,
     inProgress,
     error,
@@ -260,16 +260,14 @@ export function Welcome(){
               {buttonLabelAudio()}
           </button>
           
-          <button
-            disabled={!startRecording}
-            onClick={() =>
-              startRecording(`${window.location.href}rec/${roomId}`)
-            }
-          >
-            {`Record ${error}`}
-          </button>
+           <button 
+          disabled={!startRecording} 
+          onClick={() => startRecording}
+        >
+          START_RECORDING
+        </button>
           {isStarting ? "Recording is starting": error} 
-          <button disabled={!stoprecording} onClick={stoprecording}>
+          <button disabled={!stopRecording} onClick={stopRecording}>
             Stop Record
           </button>
   
