@@ -49,7 +49,7 @@
     justify-content: flex-start;
    
     h1{
-      font-size: 1.5rem;
+      font-size: 2rem;
     }
   }  
 
@@ -65,11 +65,11 @@
    
     .settingsContainer{
       width: 100%;
-      height: 50px;
+      height: 30px;
       padding: 1rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
 
       .navbar{
         height: 7em;
@@ -95,7 +95,7 @@
       .sidebar{
       display: block;
       position: absolute;
-      top: 310px;
+      top: 330px;
       right: 135px;
       width: 250px; 
       margin-left: -1px;  
@@ -185,13 +185,14 @@
       //background: pink;
 
       button{
-        width: 150px;
+        width: 100px;
         height: 50px;
         padding: .5rem;
         background: #000;
         border: 1px solid #5b5b5b;
         color: #fff;
         border-radius: 4px;
+        font-size: .8rem;
       }
     }
   }  

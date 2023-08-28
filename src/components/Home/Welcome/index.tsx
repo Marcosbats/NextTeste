@@ -1,7 +1,7 @@
 import styles from  './styles.module.scss'
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
-import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers, useAcl } from '@huddle01/react/hooks';
+import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers, useAcl, useRecording } from '@huddle01/react/hooks';
 import { PeerTestnet } from '@thirdweb-dev/chains';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -40,6 +40,14 @@ export function Welcome(){
   const [videoFunction, setVideoFunction] = useState('start'); // Pode ser 'start', 'play' ou 'stop'  
   const [audioFunction, setAudioFunction] = useState('start'); 
   //const [roomFunction, setRoomFunction] = useState('start'); 
+    const {
+    startRecording,
+    stopRecording,
+    isStarting,
+    inProgress, isStopping,
+    error,
+    data: recordingData,
+  } = useRecording();
   const [isOpen, setOpen] = useState(false) // hamburguer
 
   const handleLinkClick = () => { //hamburguer
@@ -67,11 +75,11 @@ export function Welcome(){
 
   const buttonLabelRoom = () => {
     if (roomState === 'INIT') {
-      return 'CONECTANDO';
+      return 'Conectando';
     } else if (roomState === 'LOBBY') {
-      return 'ENTRAR NA SALA';
+      return 'Entrar na Sala';
     } else if (roomState === 'ROOM') {
-      return 'SAIR DA SALA';
+      return 'Sair da Sala';
     }
   };
   
@@ -157,7 +165,9 @@ export function Welcome(){
     // Write your logic here
     toast.success("Usuário saiu da sala");
   });
- 
+
+  if(inProgress) return (<div>...loading</div>)
+   
   return (
     <div className={styles.mainContainer}>   
       <div className={styles.statusContainer}>    
@@ -165,13 +175,11 @@ export function Welcome(){
         <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ''}</span>                 
       </div>
       <div className={styles.callContainer}>
-       <h1>10 Call</h1>
+       <h1>10ª Call da Comunidade</h1>
       </div>
            
       <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>
-          <h3>Room State: {roomState.valueOf()}</h3>
-          
           <div className={styles.navbar}>                
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} /> 
           </div>
@@ -251,8 +259,21 @@ export function Welcome(){
             >
               {buttonLabelAudio()}
           </button>
+          
+          <button
+            disabled={!startRecording}
+            onClick={() =>
+              startRecording(`${window.location.href}rec/${roomId}`)
+            }
+          >
+            {`Record ${error}`}
+          </button>
+          {isStarting ? "Recording is starting": error} 
+          <button disabled={!stopRecording} onClick={stopRecording}>
+            Stop Record
+          </button>
   
-          <h2>Usuários na Sala : {Object.values(peers).length}</h2> 
+          <h3>Usuários na Sala : {Object.values(peers).length}</h3> 
 
           <Link className={styles.btnAuditorio} href="/auditorio" target='blank' passHref>
             ENTRAR NO EVENTO

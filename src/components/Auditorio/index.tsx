@@ -47,26 +47,33 @@ export function Auditorio(){
     setOpen(false);
   }; 
 
+  
+  const handleRoomButtonClick = () => {
+    if (roomState.valueOf() === 'LOBBY') {
+      try {
+        joinRoom();
+      } catch (error) {
+        console.error('Erro:', error);
+      }
+    } else if (roomState.valueOf() === 'ROOM') { 
+        leaveRoom();
+        initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
+        joinLobby('ymc-rdab-lew');
+        setAudioFunction('start');
+        setVideoFunction('start');
+        
+    }
+  };
+
   const getButtonLabelRoom = () => {
     if (roomState.valueOf() === 'LOBBY') {
-      return 'ENTRAR';
+      return 'Entrar';
     } else if (roomState.valueOf() === 'ROOM') {
-      return 'SAIR';
+      return 'Sair';
     } else {
       return 'Loading';
     }
   };
-
-  const buttonLabelRoom = () => {
-    if (roomState === 'INIT') {
-      return 'CONECTANDO';
-    } else if (roomState === 'LOBBY') {
-      return 'ENTRAR NA SALA';
-    } else if (roomState === 'ROOM') {
-      return 'SAIR DA SALA';
-    }
-  };
-  
 
   const handleVideoButtonClick = () => {
     if (videoFunction === 'start') {
@@ -157,13 +164,11 @@ export function Auditorio(){
         <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ''}</span>                 
       </div>
       <div className={styles.callContainer}>
-       <h1>10 Call</h1>
+       <h1>10ª Call da Comunidade</h1>
       </div>
            
       <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>
-          <h3>Room State: {roomState.valueOf()}</h3>
-          
           <div className={styles.navbar}>                
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} /> 
           </div>
@@ -223,7 +228,8 @@ export function Auditorio(){
 
         <div className={styles.admButtons}>  
 
-        <button disabled={!joinRoom.isCallable} onClick={joinRoom}>
+        <button disabled={!joinRoom.isCallable && !leaveRoom.isCallable}
+        onClick={handleRoomButtonClick}>
         {getButtonLabelRoom()}
         </button>
              
