@@ -20,8 +20,8 @@ export default function App({
         ]}
         activeChain={Polygon}
         autoConnect={false}>
-        <ToastContainer autoClose={3000}/>
-        <Component {...pageProps}/>
+        <ToastContainer autoClose={3000}/>       
+        <Component {...pageProps}/>       
       </ThirdwebProvider>
   )
 }

@@ -1,9 +1,32 @@
 import styles from  './styles.module.scss'
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
-import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers } from '@huddle01/react/hooks';
+import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers, useAcl } from '@huddle01/react/hooks';
+import { PeerTestnet } from '@thirdweb-dev/chains';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { useDisplayName } from "@huddle01/react/app-utils";
+import { Divide as Hamburger } from 'hamburger-react'
+import { toast } from 'react-toastify'
+import axios from 'axios';
+
+//Hamburguer
+interface NavbarProps {
+  isOpen: boolean;
+  toggleSidebar: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isOpen, toggleSidebar }) => {
+  const navbarClassName = isOpen ? 'navbar' : 'navbar hidden';
+
+  return(
+    <div className={navbarClassName}>
+    <Hamburger toggled={isOpen}
+    size={parseInt("25")} rounded toggle={toggleSidebar} />
+    </div>   
+  )
+}
+
 
 export function Welcome(){ 
   const { initialize, isInitialized, roomState } = useHuddle01();
@@ -12,11 +35,106 @@ export function Welcome(){
   const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stopProducingAudio, stream:micStream } = useAudio();
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stopProducingVideo, stream:camStream } = useVideo(); 
   const { joinRoom, leaveRoom } = useRoom();
-  const { peers} = usePeers();
+  const { peers } = usePeers();  
+  const { setDisplayName, error: displayNameError } = useDisplayName();
+  const [videoFunction, setVideoFunction] = useState('start'); // Pode ser 'start', 'play' ou 'stop'  
+  const [audioFunction, setAudioFunction] = useState('start'); 
+  //const [roomFunction, setRoomFunction] = useState('start'); 
+  const [isOpen, setOpen] = useState(false) // hamburguer
+
+  const handleLinkClick = () => { //hamburguer
+    setOpen(false);
+  }; 
+
+  const handleRoomButtonClick = () => {
+    if (roomState.valueOf() === 'LOBBY') {
+      try {
+        joinRoom();
+       // setVideoFunction('play');
+      } catch (error) {
+        console.error('Erro:', error);
+      }
+    } else if (roomState.valueOf() === 'ROOM') { 
+        leaveRoom();
+        initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
+        joinLobby('ymc-rdab-lew');
+        setAudioFunction('start');
+        setVideoFunction('start');
+        
+       // setVideoFunction('stop');
+    }
+  };
+
+  const buttonLabelRoom = () => {
+    if (roomState === 'INIT') {
+      return 'CONECTANDO';
+    } else if (roomState === 'LOBBY') {
+      return 'ENTRAR NA SALA';
+    } else if (roomState === 'ROOM') {
+      return 'SAIR DA SALA';
+    }
+  };
+  
+
+  const handleVideoButtonClick = () => {
+    if (videoFunction === 'start') {
+      try {
+        fetchVideoStream();
+        setVideoFunction('play');
+      } catch (error) {
+        console.error('Erro:', error);
+      }
+    } else if (videoFunction === 'play') {      
+        produceVideo(camStream);
+        setVideoFunction('stop');
+    } else if (videoFunction === 'stop') {
+      stopVideoStream()
+      setVideoFunction('start');
+    }
+  };
+  
+  const buttonLabelVideo = () => {
+    if (videoFunction === 'start') {
+      return 'Ligar Camera';
+    } else if (videoFunction === 'play') {
+      return 'Reproduzir Video';
+    } else if (videoFunction === 'stop') {
+      return 'Parar Video';
+    }
+  };
+  
+  const handleAudioButtonClick = () => {
+    if (audioFunction === 'start') {
+      try {
+        fetchAudioStream();
+        setAudioFunction('play');
+      } catch (error) {
+        console.error('Erro:', error);
+      }
+    } else if (audioFunction === 'play') {      
+        produceAudio(micStream!);
+        setAudioFunction('stop');
+    } else if (audioFunction === 'stop') {
+      stopAudioStream()
+      setAudioFunction('start');
+    }
+  };
+  
+  const buttonLabelAudio = () => {
+    if (audioFunction === 'start') {
+      return 'Ligar Audio';
+    } else if (audioFunction === 'play') {
+      return 'Reproduzir Audio';
+    } else if (audioFunction === 'stop') {
+      return 'Parar Audio';
+    }
+  };
 
   useEffect(() => {
     // its preferable to use env vars to store projectId
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
+    joinLobby('ymc-rdab-lew');
+    
   }, []);
    
   useEffect(() => {
@@ -30,97 +148,118 @@ export function Welcome(){
       audioElement.srcObject = micStream;
     }
   }, [camStream, micStream]);
-   
 
+  useEventListener("room:peer-joined", () => {
+    // Write your logic here
+    toast.success("Novo usuário na sala");
+  });
+  useEventListener("room:peer-left", () => {
+    // Write your logic here
+    toast.success("Usuário saiu da sala");
+  });
+ 
   return (
-    <div className={styles.mainContainer}>
-      {isInitialized ? 'Hello World!' : 'Please initialize'}
-      <h1>State Room</h1>
-      <div className={styles.roomState}>Room State: {roomState.valueOf()}</div>
-       
-      <video
-        id="camVideo"
-        autoPlay
-        playsInline
-        muted
-        className={styles.videoElement}
-      />
-      <audio
-        id="micAudio"
-        autoPlay
-        // eslint-disable-next-line react/no-unknown-property
-        playsInline
-       // muted
-        className={styles.audioElement}
-      />   
-
-      <div className="grid grid-cols-4">
-        {Object.values(peers)
-          .filter((peer) => peer.cam)
-          .map((peer) => (
-            <>
-              role: {peer.role}
-              <Video
-                key={peer.peerId}
-                peerId={peer.peerId}
-                track={peer.cam!}
-                debug    
-              />
-            </>
-          ))}
-          {Object.values(peers)
-          .filter((peer) => peer.mic)
-          .map((peer) => (
-            <Audio 
-            key={peer.peerId} 
-            peerId={peer.peerId} 
-            track={peer.mic!} />
-        ))}
-      </div>    
-
-        <button 
-          disabled={!joinLobby.isCallable} 
-          onClick={() => joinLobby('xey-rsqz-hxm')
-        }>
-          Join Lobby
-        </button>
-
-        <button disabled={!fetchAudioStream.isCallable} onClick={(event) => fetchAudioStream()}>
-          FETCH_AUDIO_STREAM
-        </button>
- 
-        <button disabled={!fetchVideoStream.isCallable} onClick={(event) => fetchVideoStream()}>
-          FETCH_VIDEO_STREAM
-        </button>
-
-        <button disabled={!joinRoom.isCallable} onClick={joinRoom}>
-          JOIN_ROOM 
-        </button>
- 
-        <button disabled={!leaveRoom.isCallable} onClick={leaveRoom}>
-          LEAVE_ROOM 
-        </button> 
-
-        <button disabled={!produceVideo.isCallable} onClick={() => produceVideo(camStream)}>
-          Produce Cam  
-        </button>
-
-        <button disabled={!produceAudio.isCallable} onClick={() => produceAudio(micStream!)}>
-          Produce Mic  
-        </button> 
- 
-        <button disabled={!stopProducingVideo.isCallable} onClick={stopProducingVideo}>
-          Stop Producing Cam  
-        </button>
- 
-        <button disabled={!stopProducingAudio.isCallable} onClick={stopProducingAudio}>
-          Stop Producing Mic  
-        </button>
-
-        <Link className={styles.btnAuditorio} href="/auditorio" target='blank' passHref>
-          ENTRAR NO EVENTO
-        </Link>
+    <div className={styles.mainContainer}>   
+      <div className={styles.statusContainer}>    
+        <button className={`${styles.btnStatus} ${roomState.valueOf() === 'ROOM' ? styles.greenButton : styles.redButton}`} />
+        <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ''}</span>                 
       </div>
-    );
-  };
- 
+      <div className={styles.callContainer}>
+       <h1>10 Call</h1>
+      </div>
+           
+      <div className={styles.auditorioContainer}>     
+        <div className={styles.settingsContainer}>
+          <h3>Room State: {roomState.valueOf()}</h3>
+          
+          <div className={styles.navbar}>                
+            <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} /> 
+          </div>
+            {isOpen && (
+              <div className={styles.sidebar}>
+                {Object.values(peers)
+                .filter((peer) => peer.displayName) // Filtra os peers com displayName definido
+                .map((peer, index) => (
+                  <Link href="" passHref> <span key={index}>{peer.displayName}</span></Link>
+                ))} 
+              </div>
+            )}
+        </div>  
+        <div className={styles.transmitionContainer}>
+          <div className={styles.transmitionHost}>      
+            <video
+              id="camVideo"
+              autoPlay
+              playsInline
+              muted
+              className={styles.videoHost}
+            />
+            <audio
+              id="micAudio"
+              autoPlay
+              // eslint-disable-next-line react/no-unknown-property
+              playsInline
+            // muted
+              className={styles.audioElement}
+          />   
+          </div> 
+
+        {/*  <div className={styles.transmitionPeers}>
+            {Object.values(peers)
+              .filter((peer) => peer.cam)
+              .map((peer) => (
+                <>
+                  <Video
+                    className={styles.videoPeers}
+                    key={peer.peerId}
+                    peerId={peer.peerId}
+                    track={peer.cam!}
+                    //debug    
+                  />
+                </>
+              ))}
+            {Object.values(peers)
+              .filter((peer) => peer.mic)
+              .map((peer) => (
+                <Audio 
+                key={peer.peerId} 
+                peerId={peer.peerId} 
+                track={peer.mic!} />
+            ))}
+              </div> */}
+        </div> 
+
+        <div className={styles.admButtons}>  
+
+        <button
+            disabled={!joinRoom.isCallable && !leaveRoom.isCallable }
+            onClick={handleRoomButtonClick}
+            >
+              {buttonLabelRoom()}
+          </button>     
+         
+          <button
+            disabled={!fetchVideoStream.isCallable || !produceVideo.isCallable }
+            onClick={handleVideoButtonClick}
+            >
+              {buttonLabelVideo()}
+          </button>
+
+          <button
+            disabled={!fetchAudioStream.isCallable ||!produceAudio.isCallable }
+            onClick={handleAudioButtonClick}
+            >
+              {buttonLabelAudio()}
+          </button>
+  
+          <h2>Usuários na Sala : {Object.values(peers).length}</h2> 
+
+          <Link className={styles.btnAuditorio} href="/auditorio" target='blank' passHref>
+            ENTRAR NO EVENTO
+          </Link>
+        </div>
+      </div>  
+    </div>    
+  );
+};
+

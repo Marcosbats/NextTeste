@@ -82,13 +82,13 @@
 
   .contentFooter{
       padding: 10px 0;
-      align-items: start;
+      align-items: flex-start;
   }
 
   .termos{
       display: flex;
       flex-direction: column;
-      align-items: end;
+      align-items: flex-end;
      
       a{
           margin-bottom: 15px;
