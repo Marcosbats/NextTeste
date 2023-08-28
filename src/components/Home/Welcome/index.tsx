@@ -261,10 +261,12 @@ export function Welcome(){
           </button>
           
            <button 
-          disabled={!startRecording} 
-          onClick={() => startRecording}
+          disabled={!startRecording}
+          onClick={() =>
+            startRecording(`${window.location.href}rec/${roomId}`)
+          }
         >
-          START_RECORDING
+          {`RECOR ${error}`}
         </button>
           {isStarting ? "Recording is starting": error} 
           <button disabled={!stopRecording} onClick={stopRecording}>
