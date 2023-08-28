@@ -42,7 +42,7 @@ export function Welcome(){
   //const [roomFunction, setRoomFunction] = useState('start'); 
     const {
     startRecording,
-    stopRecording,
+    stoprecording,
     isStarting,
     inProgress,
     error,
@@ -269,7 +269,7 @@ export function Welcome(){
             {`Record ${error}`}
           </button>
           {isStarting ? "Recording is starting": error} 
-          <button disabled={!stopRecording} onClick={stopRecording}>
+          <button disabled={!stoprecording} onClick={stoprecording}>
             Stop Record
           </button>
   
