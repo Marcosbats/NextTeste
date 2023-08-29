@@ -183,7 +183,7 @@ export function Auditorio(){
             )}
         </div>  
         <div className={styles.transmitionContainer}>
-           {/*  <div className={styles.transmitionHost}>      
+            <div className={styles.transmitionHost}>      
             <video
               id="camVideo"
               autoPlay
@@ -199,7 +199,7 @@ export function Auditorio(){
             // muted
               className={styles.audioElement}
           />   
-                </div> */}
+        </div> 
 
        <div className={styles.transmitionPeers}>
             {Object.values(peers)
@@ -246,8 +246,7 @@ export function Auditorio(){
             onClick={handleAudioButtonClick}
             >
               {buttonLabelAudio()}
-          </button>
-  
+          </button> 
           
 
         </div>
