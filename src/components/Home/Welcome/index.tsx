@@ -52,8 +52,20 @@ export function Welcome(){
   const { setDisplayName, error: displayNameError } = useDisplayName();
   const [videoFunction, setVideoFunction] = useState('start'); // Pode ser 'start', 'play' ou 'stop'  
   const [audioFunction, setAudioFunction] = useState('start'); 
-  //const [roomFunction, setRoomFunction] = useState('start'); 
+  //const [idHost, setIdHost] = useState(null); 
   const [isOpen, setOpen] = useState(false) // hamburguer
+  const videoRef = useRef<HTMLVideoElement | null>(null); // Defina o tipo do ref
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+ 
+ useEffect(() => {
+  if (camStream && videoRef.current) { // Verifica se videoRef.current não é nulo
+    videoRef.current.srcObject = camStream;
+  }
+
+  if (micStream && audioRef.current) { // Verifica se audioRef.current não é nulo
+    audioRef.current.srcObject = micStream;
+  }
+}, [camStream, micStream]);
 
   const handleLinkClick = () => { //hamburguer
     setOpen(false);
@@ -63,20 +75,18 @@ export function Welcome(){
     if (roomState.valueOf() === 'LOBBY') {
       try {
         joinRoom();
-       // setVideoFunction('play');
       } catch (error) {
         console.error('Erro:', error);
       }
     } else if (roomState.valueOf() === 'ROOM') { 
         leaveRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        joinLobby('ymc-rdab-lew');
+        joinLobby('cem-eijh-lqv');
         setAudioFunction('start');
         setVideoFunction('start');
-        
-       // setVideoFunction('stop');
     }
   };
+
 
   const buttonLabelRoom = () => {
     if (roomState === 'INIT') {
@@ -146,26 +156,17 @@ export function Welcome(){
   useEffect(() => {
     // its preferable to use env vars to store projectId
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    joinLobby('ymc-rdab-lew');
+    joinLobby('cem-eijh-lqv');
     
   }, []);
-   
-  useEffect(() => {
-    if (camStream) {
-      const videoElement = document.getElementById('camVideo') as HTMLVideoElement;
-      videoElement.srcObject = camStream;
-    }
 
-    if (micStream) {
-      const audioElement = document.getElementById('micAudio') as HTMLAudioElement;
-      audioElement.srcObject = micStream;
-    }
-  }, [camStream, micStream]);
+  const { me } = useHuddle01(); 
+ 
+  const { meId, role, displayName } = me;
+ 
+  console.log("simmmm: ",{ meId, role, displayName })
+  
 
-  useEventListener("room:peer-joined", () => {
-    // Write your logic here
-    toast.success("Novo usuário na sala");
-  });
   useEventListener("room:peer-left", () => {
     // Write your logic here
     toast.success("Usuário saiu da sala");
@@ -176,7 +177,7 @@ export function Welcome(){
     <div className={styles.mainContainer}>   
       <div className={styles.statusContainer}>    
         <button className={`${styles.btnStatus} ${roomState.valueOf() === 'ROOM' ? styles.greenButton : styles.redButton}`} />
-        <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon}/> {Object.values(peers).length}              
+        <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
       </div>
       <div className={styles.callContainer}>
        <h1>10ª Call da Comunidade</h1>
@@ -185,21 +186,20 @@ export function Welcome(){
       <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>        
           <div className={styles.transmitionHost}>      
-            <video
-              id="camVideo"
+          <video
+              ref={videoRef}
               autoPlay
               playsInline
               muted
               className={styles.videoHost}
             />
             <audio
-              id="micAudio"
+              ref={audioRef}
               autoPlay
-              // eslint-disable-next-line react/no-unknown-property
               playsInline
-            // muted
               className={styles.audioElement}
-          />   
+            /> 
+            
           </div> 
           <div className={styles.navbar}>                
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} /> 
@@ -209,38 +209,34 @@ export function Welcome(){
                 {Object.values(peers)
                 .filter((peer) => peer.displayName) // Filtra os peers com displayName definido
                 .map((peer, index) => (
-                  <Link href="" passHref> <span key={index}><LuUser/> {peer.displayName}</span></Link>
+                  <Link href="" passHref> <span key={index}><LuUser/> {peer.displayName}</span></Link> 
                 ))} 
               </div>
             )}
-        </div>      
-         
+        </div>         
         
          
-         <Carousel showStatus={false} showThumbs={false} className={styles.customCarousel}>
-         {Object.values(peers)
-            .filter((peer) => peer.cam)
+        <Carousel showStatus={false} showThumbs={false} className={styles.customCarousel}>
+          {Object.values(peers)
+            .filter((peer) => peer.cam || peer.mic)
             .map((peer) => (
-              <div key={peer.peerId}> 
-                <Video
-                  className={styles.videoPeers}
-                  peerId={peer.peerId}
-                  track={peer.cam!}
-                />
+              <div key={peer.peerId} className={styles.carouselItem}>
+                {peer.cam && (
+                  <Video
+                    className={styles.videoPeers}
+                    peerId={peer.peerId}
+                    track={peer.cam!}
+                  />
+                )}
+                {peer.mic && (
+                  <Audio
+                    peerId={peer.peerId}
+                    track={peer.mic!}
+                  />
+                )}
               </div>
             ))}
-          {Object.values(peers)
-            .filter((peer) => peer.mic)
-            .map((peer) => (
-              <Audio 
-                key={peer.peerId} 
-                peerId={peer.peerId} 
-                track={peer.mic!} 
-              />
-            ))}
-             
-        </Carousel>
-       
+        </Carousel>           
         
            
         
@@ -250,8 +246,8 @@ export function Welcome(){
             onClick={handleRoomButtonClick}
             >
               {buttonLabelRoom()}
+             
           </button>     
-         
           <button
             disabled={!fetchVideoStream.isCallable || !produceVideo.isCallable }
             onClick={handleVideoButtonClick}
@@ -264,8 +260,7 @@ export function Welcome(){
             onClick={handleAudioButtonClick}
             >
               {buttonLabelAudio()}
-          </button>
-       
+          </button> 
           
 
           <Link className={styles.btnAuditorio} href="/auditorio" target='blank' passHref>
@@ -273,6 +268,7 @@ export function Welcome(){
           </Link>
         </div>
       </div>  
+      
     </div>    
   );
 };
