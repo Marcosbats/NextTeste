@@ -26,7 +26,8 @@ export default function Call(){
       </Head>
       
       <main className={styles.mainContainer}>
-          <Header />
+          <Header /> 
+           
           <Auditorio />          
           <Footer />        
       </main>      
