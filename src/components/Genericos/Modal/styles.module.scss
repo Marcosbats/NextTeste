@@ -1,0 +1,61 @@
+.modalContainer{
+	position: fixed;
+	z-index: 120;
+	inset: 0;
+	backdrop-filter: blur(0.3rem);
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+
+	.modalContent{
+		position: fixed;
+		padding: 2rem;
+		width: 600px;
+		height: 350px;    
+		top: 50%;
+		left: 50%;
+		z-index: 150;
+		border: 2px solid #5b5b5b;
+		transform: translate(-50%, -50%);
+		background-color: rgb(0, 0, 0);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		background: linear-gradient(120deg, rgba(0, 0, 0) 55%, #49046c); 
+		text-align: center;
+
+		h2{
+			font-size: 1.5rem;			
+		}
+
+		.inputContainer{
+			width: 50%;
+			height: 50px;
+			margin: 1rem 0;
+			border: 1px solid #5b5b5b;
+			border-radius: 5px;
+			background: none;
+			color: #fff;
+
+			::placeholder{
+				color: #fff;
+			}
+
+		}		
+			
+		button{
+			width: 50%;
+			height: 50px;
+			border: none;
+			border-radius: 5px;
+			background: #246BFD;			
+			color: #fff;
+			font-size: 1.2rem;
+		}
+		
+
+		
+	}
+}
