@@ -93,7 +93,7 @@ export function Auditorio(){
     } else if (roomState.valueOf() === 'ROOM') { 
         leaveRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        joinLobby('mgm-ltfs-eva');
+        joinLobby('tzy-pjrj-yop');
         setAudioFunction('start');
         setVideoFunction('start');
     }
@@ -168,7 +168,7 @@ export function Auditorio(){
   useEffect(() => {
     // its preferable to use env vars to store projectId
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    joinLobby('mgm-ltfs-eva');
+    joinLobby('tzy-pjrj-yop');
     
   }, []);
 

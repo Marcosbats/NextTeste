@@ -51,6 +51,13 @@ export function Welcome(){
   const videoRef = useRef<HTMLVideoElement | null>(null); 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { changePeerRole, changeRoomControls, kickPeer } = useAcl();
+ 
+  useEffect(() => {
+    // Essa função será executada sempre que camStream mudar
+    if (camStream) {
+      produceVideo(camStream); // Execute a função quando camStream estiver disponível
+    }
+  }, [camStream]);
 
   const MuteEveryone = () => {
     changeRoomControls('muteEveryone', true);
@@ -81,7 +88,7 @@ export function Welcome(){
     } else if (roomState.valueOf() === 'ROOM') { 
         endRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        joinLobby('mgm-ltfs-eva');
+        joinLobby('tzy-pjrj-yop');
         setAudioFunction('start');
         setVideoFunction('start');
     }
@@ -101,8 +108,8 @@ export function Welcome(){
     if (videoFunction === 'play') {
       try {
         fetchVideoStream();
-        produceVideo(camStream);
         setVideoFunction('stop');
+        produceVideo(camStream);       
       } catch (error) {
         console.error('Erro:', error);
       }
@@ -114,7 +121,7 @@ export function Welcome(){
   
   const buttonLabelVideo = () => {
     if (videoFunction === 'play') {
-      return <HiOutlineVideoCamera className={styles.iconsPlay} />; "oi";
+      return <HiOutlineVideoCamera className={styles.iconsPlay} />;
     } else if (videoFunction === 'stop') {
       return <HiOutlineVideoCameraSlash className={styles.iconsStop} />;
     } 
@@ -146,7 +153,7 @@ export function Welcome(){
   useEffect(() => {
     // its preferable to use env vars to store projectId
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    joinLobby('mgm-ltfs-eva');      
+    joinLobby('tzy-pjrj-yop');      
   
   }, []);
 
@@ -226,22 +233,19 @@ export function Welcome(){
         </Carousel>           
           
         <div className={styles.admButtons}>  
-        <button
-            disabled={!joinRoom.isCallable && !endRoom.isCallable }
-            onClick={handleRoomButtonClick}
-            >
-              {buttonLabelRoom()}
-             
-          </button>     
+          <button onClick={handleRoomButtonClick}>
+            {buttonLabelRoom()}
+          </button>  
+
           <button
-            disabled={!fetchVideoStream.isCallable || !produceVideo.isCallable }
+            disabled={!fetchVideoStream.isCallable }
             onClick={handleVideoButtonClick}
             >
               {buttonLabelVideo()}
           </button>
 
           <button
-            disabled={!fetchAudioStream.isCallable ||!produceAudio.isCallable }
+            disabled={!fetchAudioStream.isCallable || !produceAudio.isCallable }
             onClick={handleAudioButtonClick}
             >
               {buttonLabelAudio()}

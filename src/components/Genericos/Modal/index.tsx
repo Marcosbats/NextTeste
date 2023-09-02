@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useDisplayName } from "@huddle01/react/app-utils";
 import { useHuddle01, useRoom } from '@huddle01/react/hooks';
 import { Loading } from '../../Genericos/Loading'
+import { toast } from 'react-toastify';
 
 interface ModalProps {
     onClose: () => void; 
@@ -25,23 +26,21 @@ export function ModalAuditorio({ onClose, onNameSubmit }: ModalProps) {
         console.error('Erro:', error);
       }
     } else if  (roomState.valueOf() === 'ROOM') {
-      let errorMessage = '';
-    
+     
       if (displayNameText.trim() === '') {
-        errorMessage = 'Nome não pode estar em branco.';
+        toast.error('Nome não pode estar em branco.');
+        setDisplayNameText('');
       } else if (displayNameText.length < 5) {
-        errorMessage = 'Nome deve ter pelo menos 5 caracteres.';
+        toast.error('Nome deve ter pelo menos 5 caracteres.');
+        setDisplayNameText('');
       } else if (displayNameText.length > 8) {
-        errorMessage = 'Nome deve ter no máximo 8 caracteres.';
+        toast.error('Nome deve ter no máximo 8 caracteres.');
+        setDisplayNameText('');
       } else if (/(.)\1\1/.test(displayNameText)) {
-        errorMessage = 'Nome não pode conter três caracteres iguais seguidos.';
+        toast.error('Nome não pode conter três caracteres iguais seguidos.');
+        setDisplayNameText('');
       }
-    
-      if (errorMessage) {
-        // Lidar com o erro, como exibir a mensagem para o usuário
-        console.error('Erro:', errorMessage);
-        // Aqui você pode exibir a mensagem de erro onde for apropriado em sua interface do usuário
-      } else {
+       else {
         // O nome é válido, execute a lógica de sucesso
         onNameSubmit(displayNameText);
         setDisplayName(displayNameText);
