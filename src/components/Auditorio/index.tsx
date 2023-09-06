@@ -20,10 +20,11 @@ import axios from 'axios';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { FiArrowRight, FiChevronLeft, FiChevronRight} from 'react-icons/fi'
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+//import { FaChevronLeft, FaChevronRight, } from 'react-icons/fa';
 import { ModalAuditorio } from '../../components/Genericos/Modal';
 import { useDisplayName } from "@huddle01/react/app-utils";
-
+import { useAppUtils } from "@huddle01/react/app-utils"
+import { createRoom } from '../../pages/api/roomId';
 //Hamburguer
 interface NavbarProps {
   isOpen: boolean;
@@ -50,8 +51,8 @@ export function Auditorio(){
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stopProducingVideo, stream:camStream } = useVideo(); 
   const { joinRoom, leaveRoom } = useRoom();
   const { peers } = usePeers();  
-  const [videoFunction, setVideoFunction] = useState('start'); // Pode ser 'start', 'play' ou 'stop'  
-  const [audioFunction, setAudioFunction] = useState('start'); 
+  const [videoFunction, setVideoFunction] = useState('play'); // Pode ser 'start', 'play' ou 'stop'  
+  const [audioFunction, setAudioFunction] = useState('play'); 
   const [isOpen, setOpen] = useState(false) // hamburguer
   const videoRef = useRef<HTMLVideoElement | null>(null); // Defina o tipo do ref
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -59,6 +60,32 @@ export function Auditorio(){
   const [userName, setUserName] = useState('');
   const { setDisplayName, error: displayNameError } = useDisplayName();
   const [displayNameText, setDisplayNameText] = useState(" ");
+  const { me } = useHuddle01();
+ 
+  const { sendData } = useAppUtils() 
+ 
+  const { role, displayName } = me;
+  let roomIdInitialized = false;
+
+  async function initializeRoomId() {
+    // Chame a função createRoom para obter o roomId
+    if (!roomIdInitialized) {
+      // Defina a variável de controle como verdadeira para evitar chamadas repetidas
+      roomIdInitialized = true;
+      
+      // Chame a função createRoom para obter o roomId
+      const roomId = await createRoom();
+  
+      // Armazene o roomId no sessionStorage
+      sessionStorage.setItem('roomId', roomId);
+      joinLobby(roomId);
+      console.log("ESSee: ", roomId, roomState);
+    }
+  }
+
+  const sendDataToSpecificPeer = () => {
+    sendData(["*"], { message: "Hello World" })
+  };
 
   
   const closeModal = () => {
@@ -93,15 +120,16 @@ export function Auditorio(){
     } else if (roomState.valueOf() === 'ROOM') { 
         leaveRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        joinLobby('tzy-pjrj-yop');
-        setAudioFunction('start');
-        setVideoFunction('start');
+        //joinLobby('itn-cejx-ozv');
+        setAudioFunction('play');
+        setVideoFunction('play');
     }
   };
 
 
   const buttonLabelRoom = () => {
     if (roomState === 'INIT') {
+      initializeRoomId(); 
       return 'Conectando';
     } else if (roomState === 'LOBBY') {
       return 'Entrar na Sala';
@@ -112,71 +140,65 @@ export function Auditorio(){
   
 
   const handleVideoButtonClick = () => {
-    if (videoFunction === 'start') {
+    if (videoFunction === 'play') {
       try {
         fetchVideoStream();
-        setVideoFunction('play');
+        setVideoFunction('stop');     
       } catch (error) {
         console.error('Erro:', error);
       }
-    } else if (videoFunction === 'play') {      
-        produceVideo(camStream);
-        setVideoFunction('stop');
-    } else if (videoFunction === 'stop') {
-      stopVideoStream()
-      setVideoFunction('start');
-    }
+    } else if (videoFunction === 'stop') {      
+        stopVideoStream()
+        setVideoFunction('play');
+    } 
   };
   
   const buttonLabelVideo = () => {
-    if (videoFunction === 'start') {
-      return <HiMiniVideoCamera className={styles.icons} />;
-    } else if (videoFunction === 'play') {
-      return <HiOutlineVideoCamera className={styles.icons} />;
+    if (videoFunction === 'play') {
+      return <HiOutlineVideoCamera className={styles.iconsPlay} />;
     } else if (videoFunction === 'stop') {
-      return <HiOutlineVideoCameraSlash className={styles.icons}/>;
-    }
+      return <HiOutlineVideoCameraSlash className={styles.iconsStop} />;
+    } 
   };
+
+  useEffect(() => {
+    // Essa função será executada sempre que camStream mudar
+    if (camStream) {
+      produceVideo(camStream); // Execute a função quando camStream estiver disponível
+    }
+  }, [camStream]);
+
   
   const handleAudioButtonClick = () => {
-    if (audioFunction === 'start') {
+    if (audioFunction === 'play') {
       try {
         fetchAudioStream();
-        setAudioFunction('play');
+        produceAudio(micStream!);
+        setAudioFunction('stop');
       } catch (error) {
         console.error('Erro:', error);
       }
-    } else if (audioFunction === 'play') {      
-        produceAudio(micStream!);
-        setAudioFunction('stop');
     } else if (audioFunction === 'stop') {
       stopAudioStream()
-      setAudioFunction('start');
+      setAudioFunction('play');
     }
   };
   
   const buttonLabelAudio = () => {
-    if (audioFunction === 'start') {
-      return <BsMicFill className={styles.icons}/>;
-    } else if (audioFunction === 'play') {
-      return <BsMic className={styles.icons}/>;
+    if (audioFunction === 'play') {
+      return <BsMic className={styles.iconsPlay}/>;
     } else if (audioFunction === 'stop') {
-      return <BsMicMute className={styles.icons}/>;
-    }
+      return <BsMicMute className={styles.iconsStop}/>;
+    } 
   };
+
 
   useEffect(() => {
     // its preferable to use env vars to store projectId
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    joinLobby('tzy-pjrj-yop');
+    //joinLobby('itn-cejx-ozv');
     
   }, []);
-
-  useEventListener("room:peer-left", () => {
-    // Write your logic here
-    toast.success("Usuário saiu da sala");
-  });
-
 
   return (
     <div className={styles.mainContainer}>  
@@ -197,6 +219,7 @@ export function Auditorio(){
           <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon} /> {Object.values(peers).length}
         </div><div className={styles.callContainer}>
             <h1>10ª Call da Comunidade</h1>
+           
           </div>
           <div className={styles.auditorioContainer}>
             <div className={styles.settingsContainer}>
@@ -267,23 +290,31 @@ export function Auditorio(){
                 {buttonLabelRoom()}
 
               </button>
-              <button
-                disabled={!fetchVideoStream.isCallable || !produceVideo.isCallable}
-                onClick={handleVideoButtonClick}
-              >
-                {buttonLabelVideo()}
-              </button>
 
-              <button
-                disabled={!fetchAudioStream.isCallable || !produceAudio.isCallable}
-                onClick={handleAudioButtonClick}
-              >
-                {buttonLabelAudio()}
-              </button>
+              { me.role === 'coHost' && (
+                <>
+                <button
+                  disabled={!fetchVideoStream.isCallable }
+                  onClick={handleVideoButtonClick}
+                  >
+                    {buttonLabelVideo()}
+                </button>
 
+                <button
+                  disabled={!fetchAudioStream.isCallable || !produceAudio.isCallable}
+                  onClick={handleAudioButtonClick}
+                >
+                  {buttonLabelAudio()}
+                </button> 
+                </>
+              )}
+
+            <button onClick={sendDataToSpecificPeer}> Send data to specific peer </button>
             </div>
                      
           </div>
       </div>    
   );
 };
+
+

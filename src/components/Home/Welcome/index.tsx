@@ -10,14 +10,15 @@ import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
 import { HiMiniVideoCamera, HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
-import { BsMicFill, BsMic, BsMicMute,  BsTelephoneX } from "react-icons/bs";
+import { BsMicFill, BsMic, BsMicMute,  BsTelephoneX, BsTelephone, BsXCircle } from "react-icons/bs";
 import axios from 'axios';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { FiArrowRight, FiChevronLeft, FiChevronRight} from 'react-icons/fi'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { IPeer } from '@huddle01/react/dist/declarations/src/atoms/peers.atom';
-
+import { Loading } from '../../Genericos/Loading'
+import { createRoom } from '../../../pages/api/roomId';
 //Hamburguer
 interface NavbarProps {
   isOpen: boolean;
@@ -38,7 +39,7 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, toggleSidebar }) => {
 export function Welcome(){ 
   const { initialize, isInitialized, roomState } = useHuddle01();
   const { joinLobby } = useLobby();  
-  const [roomId, setRoomId] = useState("");
+  //const [roomId, setRoomId] = useState("");
   const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stopProducingAudio, stream:micStream } = useAudio();
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stopProducingVideo, stream:camStream } = useVideo(); 
   const { joinRoom, leaveRoom, endRoom } = useRoom();
@@ -51,7 +52,27 @@ export function Welcome(){
   const videoRef = useRef<HTMLVideoElement | null>(null); 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { changePeerRole, changeRoomControls, kickPeer } = useAcl();
+  const { me } = useHuddle01();
+  const { role, displayName } = me;
+  let roomIdInitialized = false;
+
+  async function initializeRoomId() {
+    // Chame a função createRoom para obter o roomId
+    if (!roomIdInitialized) {
+      // Defina a variável de controle como verdadeira para evitar chamadas repetidas
+      roomIdInitialized = true;
+      
+      // Chame a função createRoom para obter o roomId
+      const roomId = await createRoom();
+  
+      // Armazene o roomId no sessionStorage
+      sessionStorage.setItem('roomId', roomId);
+      joinLobby(roomId);
+      console.log("ESSee: ", roomId, roomState);
+    }
+  }
  
+
   useEffect(() => {
     // Essa função será executada sempre que camStream mudar
     if (camStream) {
@@ -59,10 +80,12 @@ export function Welcome(){
     }
   }, [camStream]);
 
-  const MuteEveryone = () => {
-    changeRoomControls('muteEveryone', true);
-    setIsMuted(!isMuted); 
-  }
+  useEffect(() => {
+    // Essa função será executada sempre que micStream mudar
+    if (micStream) {
+      produceAudio(micStream!); // Execute a função quando micStream estiver disponível
+    }
+  }, [micStream]);
 
   useEffect(() => {
     if (camStream && videoRef.current) { // Verifica se videoRef.current não é nulo
@@ -79,37 +102,43 @@ export function Welcome(){
   }; 
 
   const handleRoomButtonClick = () => {
-    if (roomState.valueOf() === 'LOBBY') {
+    if (roomState === 'LOBBY') {
       try {
         joinRoom();
       } catch (error) {
         console.error('Erro:', error);
       }
-    } else if (roomState.valueOf() === 'ROOM') { 
+    } else if (roomState === 'ROOM') { 
         endRoom();
-        initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        joinLobby('tzy-pjrj-yop');
-        setAudioFunction('start');
-        setVideoFunction('start');
+        initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');        
+        //joinLobby(roomId);
+        setAudioFunction('play');
+        setVideoFunction('play');
     }
   };
 
   const buttonLabelRoom = () => {
     if (roomState === 'INIT') {
-      return 'Conectando';
+      initializeRoomId(); 
+      return <>
+              <Loading />                      
+             </>                                
     } else if (roomState === 'LOBBY') {
-      return 'Entrar na Sala';
+      return <> <BsTelephone className={styles.iconsPlay}/> 
+              Entrar na Sala
+             </> ;
     } else if (roomState === 'ROOM') {
-      return <BsTelephoneX className={styles.iconsStop}/>; 
+      return <> <BsTelephoneX className={styles.iconsStop}/> 
+               Sair da Sala
+             </>; 
     }
   };  
 
   const handleVideoButtonClick = () => {
-    if (videoFunction === 'play') {
+    if (videoFunction === 'play' && roomState === 'ROOM') {
       try {
         fetchVideoStream();
-        setVideoFunction('stop');
-        produceVideo(camStream);       
+        setVideoFunction('stop');     
       } catch (error) {
         console.error('Erro:', error);
       }
@@ -121,17 +150,20 @@ export function Welcome(){
   
   const buttonLabelVideo = () => {
     if (videoFunction === 'play') {
-      return <HiOutlineVideoCamera className={styles.iconsPlay} />;
+      return <> <HiOutlineVideoCamera className={styles.iconsPlay} />
+      Iniciar Video
+      </>;
     } else if (videoFunction === 'stop') {
-      return <HiOutlineVideoCameraSlash className={styles.iconsStop} />;
+      return <> <HiOutlineVideoCameraSlash className={styles.iconsStop} />
+      Parar Video
+      </>;
     } 
   };
   
   const handleAudioButtonClick = () => {
-    if (audioFunction === 'play') {
+    if (audioFunction === 'play' && roomState === 'ROOM') {
       try {
         fetchAudioStream();
-        produceAudio(micStream!);
         setAudioFunction('stop');
       } catch (error) {
         console.error('Erro:', error);
@@ -144,33 +176,33 @@ export function Welcome(){
   
   const buttonLabelAudio = () => {
     if (audioFunction === 'play') {
-      return <BsMic className={styles.iconsPlay}/>;
+      return <> <BsMic className={styles.iconsPlay}/> 
+      Iniciar Audio
+      </> ;
     } else if (audioFunction === 'stop') {
-      return <BsMicMute className={styles.iconsStop}/>;
+      return <> <BsMicMute className={styles.iconsStop}/>
+      Parar Audio
+      </>;
     } 
   };
 
   useEffect(() => {
     // its preferable to use env vars to store projectId
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    joinLobby('tzy-pjrj-yop');      
+   //joinLobby(roomd)    
   
   }, []);
 
-  useEventListener("room:peer-left", () => {
-    
-    // Write your logic here
-    toast.success("Usuário saiu da sala");
-  });
 
   return (
     <div className={styles.mainContainer}>   
       <div className={styles.statusContainer}>    
         <button className={`${styles.btnStatus} ${videoFunction === 'stop' && audioFunction === 'stop' ? styles.greenButton : styles.redButton}`} />
-        <span>{videoFunction === 'stop' && audioFunction === 'stop'  ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
+        <span>{videoFunction === 'stop' && audioFunction === 'stop'  ? ' Ao Vivo' : ' Em Breve'}</span>
+          <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
       </div>
       <div className={styles.callContainer}>
-       <h1>10ª Call da Comunidade</h1>
+       <h1>10ª Call da Comunidade {roomState}</h1> 
       </div>
            
       <div className={styles.auditorioContainer}>     
@@ -201,9 +233,17 @@ export function Welcome(){
                 .map((peer, index) => (
                   <Link href="" passHref> 
                   <span key={index}>
-                    <LuUser /> {peer.displayName} 
-                    <button onClick={() => kickPeer(peer.peerId)}>Remove</button>
-                    <button onClick={() => changePeerRole(peer.peerId, 'host')}>Host</button>
+                    <LuUser /> {(peer.role === 'peer') ? (peer.displayName) : (me.role)} 
+                    <button onClick={() => kickPeer(peer.peerId)}><BsXCircle className={styles.iconsRemove}/></button>
+                    <button onClick={() => {
+                        if (peer.role === 'peer') {
+                          changePeerRole(peer.peerId, 'coHost');
+                        } else if (peer.role === 'coHost')  {
+                          changePeerRole(peer.peerId, 'listener');
+                        }
+                      }}>
+                      {(peer.role === 'coHost') ? 'H' : 'L'}
+                    </button>
                   </span></Link> 
                 ))} 
               </div>
@@ -230,19 +270,20 @@ export function Welcome(){
                 )}
               </div>
             ))}
-        </Carousel>           
+        </Carousel>      
           
-        <div className={styles.admButtons}>  
+        <div className={styles.admButtons}>
+          
           <button onClick={handleRoomButtonClick}>
             {buttonLabelRoom()}
-          </button>  
+            </button>  
 
           <button
             disabled={!fetchVideoStream.isCallable }
             onClick={handleVideoButtonClick}
             >
               {buttonLabelVideo()}
-          </button>
+             </button>
 
           <button
             disabled={!fetchAudioStream.isCallable || !produceAudio.isCallable }
@@ -250,10 +291,6 @@ export function Welcome(){
             >
               {buttonLabelAudio()}
           </button> 
-
-          <button onClick={MuteEveryone}>
-            {isMuted ? 'Mudo Desativado' : 'Mudo Ativado'} 
-          </button>           
 
           <Link className={styles.btnAuditorio} href="/auditorio" target='blank' passHref>
             ENTRAR NO EVENTO

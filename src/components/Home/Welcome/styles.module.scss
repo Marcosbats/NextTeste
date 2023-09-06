@@ -1,11 +1,14 @@
  .iconsPlay{
-  font-size: 22px;
+  font-size: 20px;
   color: #23d823;
+  margin-bottom: .3rem;
  }
 
  .iconsStop{
-  font-size: 22px;
+  font-size: 20px;
+  font-weight: 500;
   color: red;
+  margin-bottom: .3rem;
  }
 
 .mainContainer{
@@ -120,7 +123,30 @@
       border-radius: 10px;
       transition: height 0.3s ease; 
       z-index: 3; 
-      overflow: auto;     
+      overflow: auto; 
+      
+      button{
+        width: 30px;
+        height: 30px;
+        margin-left: .5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+        border: 1px solid #5b5b5b;
+        border-radius: 4px;
+        font-size: 1.2rem;
+        color: #fff;
+
+       .iconsRemove{
+          color: red;
+        }
+       
+        &:hover{
+          background: #181a20;
+        }
+      }
       }
     
       .sidebar span{
@@ -197,27 +223,31 @@
        // border: 1px solid #5b5b5b;
         border-radius: 10px;
       }
-    }
-  
-  
+    }  
      
     .admButtons{
       width: 100%;
       height: 100px;
+      margin-left: .5rem;
       display: flex;
       align-items: center;
-      justify-content: space-around;
-      //background: pink;
+      justify-content: flex-start;
+     // background: pink;
 
       button{
-        width: 100px;
+        width: 70px;
         height: 50px;
-        padding: .5rem;
+        margin-left: .5rem;
+        //padding: .5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         background: #000;
         border: 1px solid #5b5b5b;
         color: #fff;
         border-radius: 4px;
-        font-size: .8rem;
+        font-size: .5rem;
        
         &:hover{
           background: #181a20;

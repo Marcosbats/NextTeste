@@ -19,6 +19,7 @@ export default function App({
           }),
         ]}
         activeChain={Polygon}
+        clientId="JbArIwMfUBGW_HnQmNGaIaGqVrSt5xIn"
         autoConnect={false}>
         <ToastContainer autoClose={3000}/>       
         <Component {...pageProps}/>       

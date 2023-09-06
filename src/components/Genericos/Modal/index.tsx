@@ -52,9 +52,9 @@ export function ModalAuditorio({ onClose, onNameSubmit }: ModalProps) {
   const buttonLabelRoom = () => {
     if (roomState === 'INIT') {
       return (
-        <div>
-          <Loading /> Conectando...
-        </div>
+        <>
+          <Loading /> 
+        </>
       );
     } else if (roomState === 'LOBBY') {
       return 'ENTRAR NA SALA';
