@@ -4,6 +4,7 @@ import { Welcome } from '../components/Home/Welcome'
 import { Header } from '../components/Genericos/Header'
 import { Footer } from '../components/Genericos/Footer'
 
+
 export default function Home(){
  
   return (

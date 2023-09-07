@@ -10,7 +10,7 @@ import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
 import { HiMiniVideoCamera, HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
-import { BsMicFill, BsMic, BsMicMute,  BsTelephoneX, BsTelephone, BsXCircle } from "react-icons/bs";
+import { BsMicFill, BsMic, BsMicMute,  BsTelephoneX, BsTelephone, BsXCircle, BsGlobeAmericas } from "react-icons/bs";
 import axios from 'axios';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
@@ -54,6 +54,7 @@ export function Welcome(){
   const { changePeerRole, changeRoomControls, kickPeer } = useAcl();
   const { me } = useHuddle01();
   const { role, displayName } = me;
+  
   let roomIdInitialized = false;
 
   async function initializeRoomId() {
@@ -111,15 +112,14 @@ export function Welcome(){
     } else if (roomState === 'ROOM') { 
         endRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');        
-        //joinLobby(roomId);
+        initializeRoomId();
         setAudioFunction('play');
         setVideoFunction('play');
     }
   };
 
   const buttonLabelRoom = () => {
-    if (roomState === 'INIT') {
-      initializeRoomId(); 
+    if (roomState === 'INIT') {       
       return <>
               <Loading />                      
              </>                                
@@ -189,7 +189,7 @@ export function Welcome(){
   useEffect(() => {
     // its preferable to use env vars to store projectId
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-   //joinLobby(roomd)    
+    initializeRoomId(); 
   
   }, []);
 
@@ -202,7 +202,7 @@ export function Welcome(){
           <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
       </div>
       <div className={styles.callContainer}>
-       <h1>10ª Call da Comunidade {roomState}</h1> 
+       <h1>10ª Call da Comunidade{roomState}</h1> 
       </div>
            
       <div className={styles.auditorioContainer}>     
@@ -230,21 +230,30 @@ export function Welcome(){
               <div className={styles.sidebar}>
                 {Object.values(peers)
                 .filter((peer) => peer.displayName) // Filtra os peers com displayName definido
-                .map((peer, index) => (
-                  <Link href="" passHref> 
+                .map((peer, index) => (                  
                   <span key={index}>
-                    <LuUser /> {(peer.role === 'peer') ? (peer.displayName) : (me.role)} 
+                    <LuUser /> {(peer.role === 'host') ? ("ANFITRIÃO") : (peer.displayName) } 
                     <button onClick={() => kickPeer(peer.peerId)}><BsXCircle className={styles.iconsRemove}/></button>
                     <button onClick={() => {
                         if (peer.role === 'peer') {
                           changePeerRole(peer.peerId, 'coHost');
                         } else if (peer.role === 'coHost')  {
-                          changePeerRole(peer.peerId, 'listener');
+                          changePeerRole(peer.peerId, 'peer');
                         }
                       }}>
-                      {(peer.role === 'coHost') ? 'H' : 'L'}
+                        {(peer.role === 'peer') ? 
+                          <>
+                            <BsGlobeAmericas className={styles.iconsPlay} />
+                            <BsTelephone className={styles.iconsPlay}/>
+                          </> 
+                          : 
+                          <>
+                            <BsGlobeAmericas className={styles.iconsStop}/>
+                            <BsTelephone className={styles.iconsStop} />
+                          </>
+                          } 
                     </button>
-                  </span></Link> 
+                  </span> 
                 ))} 
               </div>
             )}

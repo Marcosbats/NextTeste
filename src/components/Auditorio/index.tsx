@@ -7,24 +7,16 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
-import { LuUsers } from "react-icons/lu";
-import { LuUser } from "react-icons/lu";
-import { HiMiniVideoCamera } from "react-icons/hi2";
-import { HiOutlineVideoCamera } from "react-icons/hi2";
-import { HiOutlineVideoCameraSlash } from "react-icons/hi2";
-import { BsMicFill } from "react-icons/bs";
-import { BsMic } from "react-icons/bs";
-import { BsMicMute } from "react-icons/bs";
-import { BsTelephoneX } from "react-icons/bs";
-import axios from 'axios';
+import { LuUser, LuUsers } from "react-icons/lu";
+import { HiMiniVideoCamera, HiOutlineVideoCamera, HiOutlineVideoCameraSlash } from "react-icons/hi2";
+import { BsMicFill, BsMic, BsMicMute, BsTelephoneX } from "react-icons/bs";
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { FiArrowRight, FiChevronLeft, FiChevronRight} from 'react-icons/fi'
-//import { FaChevronLeft, FaChevronRight, } from 'react-icons/fa';
+//import { FiArrowRight, FiChevronLeft, FiChevronRight} from 'react-icons/fi'
 import { ModalAuditorio } from '../../components/Genericos/Modal';
-import { useDisplayName } from "@huddle01/react/app-utils";
-import { useAppUtils } from "@huddle01/react/app-utils"
+import { useDisplayName, useAppUtils } from "@huddle01/react/app-utils";
 import { createRoom } from '../../pages/api/roomId';
+
 //Hamburguer
 interface NavbarProps {
   isOpen: boolean;
@@ -51,19 +43,16 @@ export function Auditorio(){
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stopProducingVideo, stream:camStream } = useVideo(); 
   const { joinRoom, leaveRoom } = useRoom();
   const { peers } = usePeers();  
-  const [videoFunction, setVideoFunction] = useState('play'); // Pode ser 'start', 'play' ou 'stop'  
+  const [videoFunction, setVideoFunction] = useState('play');   
   const [audioFunction, setAudioFunction] = useState('play'); 
   const [isOpen, setOpen] = useState(false) // hamburguer
-  const videoRef = useRef<HTMLVideoElement | null>(null); // Defina o tipo do ref
+  const videoRef = useRef<HTMLVideoElement | null>(null); 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [userName, setUserName] = useState('');
   const { setDisplayName, error: displayNameError } = useDisplayName();
   const [displayNameText, setDisplayNameText] = useState(" ");
   const { me } = useHuddle01();
- 
-  const { sendData } = useAppUtils() 
- 
   const { role, displayName } = me;
   let roomIdInitialized = false;
 
@@ -83,11 +72,6 @@ export function Auditorio(){
     }
   }
 
-  const sendDataToSpecificPeer = () => {
-    sendData(["*"], { message: "Hello World" })
-  };
-
-  
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -120,7 +104,7 @@ export function Auditorio(){
     } else if (roomState.valueOf() === 'ROOM') { 
         leaveRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        //joinLobby('itn-cejx-ozv');
+        initializeRoomId();
         setAudioFunction('play');
         setVideoFunction('play');
     }
@@ -129,12 +113,11 @@ export function Auditorio(){
 
   const buttonLabelRoom = () => {
     if (roomState === 'INIT') {
-      initializeRoomId(); 
       return 'Conectando';
     } else if (roomState === 'LOBBY') {
       return 'Entrar na Sala';
     } else if (roomState === 'ROOM') {
-      return <BsTelephoneX className={styles.icons}/>;
+      return <BsTelephoneX className={styles.iconsStop}/>;
     }
   };
   
@@ -196,7 +179,7 @@ export function Auditorio(){
   useEffect(() => {
     // its preferable to use env vars to store projectId
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    //joinLobby('itn-cejx-ozv');
+    initializeRoomId(); 
     
   }, []);
 
@@ -253,7 +236,7 @@ export function Auditorio(){
                   {Object.values(peers)
                     .filter((peer) => peer.displayName) // Filtra os peers com displayName definido
                     .map((peer, index) => (
-                      <Link href="" passHref> <span key={index}><LuUser /> {peer.displayName}</span></Link>
+                      <span key={index}><LuUser /> {(peer.role === 'host') ? ("ANFITRIÃO") : (peer.displayName)}</span>
                     ))}
                 </div>
               )}
@@ -308,9 +291,7 @@ export function Auditorio(){
                 </button> 
                 </>
               )}
-
-            <button onClick={sendDataToSpecificPeer}> Send data to specific peer </button>
-            </div>
+              </div>
                      
           </div>
       </div>    

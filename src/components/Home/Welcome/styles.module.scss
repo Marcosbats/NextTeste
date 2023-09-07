@@ -1,10 +1,17 @@
  .iconsPlay{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   font-size: 20px;
   color: #23d823;
   margin-bottom: .3rem;
  }
 
  .iconsStop{
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 20px;
   font-weight: 500;
   color: red;
@@ -126,13 +133,13 @@
       overflow: auto; 
       
       button{
-        width: 30px;
+        width: 50px;
         height: 30px;
         margin-left: .5rem;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
-        justify-content: center;
+        justify-content: space-evenly;
         background: #000;
         border: 1px solid #5b5b5b;
         border-radius: 4px;
@@ -146,6 +153,26 @@
         &:hover{
           background: #181a20;
         }
+
+        .iconsPlay{
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          color: #23d823;
+          margin-bottom: .3rem;
+         }
+        
+         .iconsStop{
+          display: flex;          
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          color: red;
+          margin-bottom: .3rem;
+         }
       }
       }
     
