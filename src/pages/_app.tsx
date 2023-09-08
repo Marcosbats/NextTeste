@@ -5,11 +5,13 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ToastContainer } from 'react-toastify'
 import { ThirdwebProvider, metamaskWallet,  coinbaseWallet,  walletConnect } from "@thirdweb-dev/react"
 import { Polygon } from "@thirdweb-dev/chains";
+import { AuthProvider } from '../contexts/Auth';
 
 export default function App({
   Component, pageProps: { session, ...pageProps }
 }: AppProps) {
    return (
+    
       <ThirdwebProvider
         supportedWallets={[
           metamaskWallet(),
@@ -21,8 +23,10 @@ export default function App({
         activeChain={Polygon}
         clientId="JbArIwMfUBGW_HnQmNGaIaGqVrSt5xIn"
         autoConnect={false}>
-        <ToastContainer autoClose={3000}/>       
-        <Component {...pageProps}/>       
-      </ThirdwebProvider>
+        <AuthProvider>       
+          <ToastContainer autoClose={3000}/>              
+          <Component {...pageProps}/> 
+        </AuthProvider>    
+      </ThirdwebProvider>       
   )
 }

@@ -2,23 +2,23 @@ import styles from  './styles.module.scss'
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
 import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers, useAcl } from '@huddle01/react/hooks';
-import { PeerTestnet } from '@thirdweb-dev/chains';
+//import { PeerTestnet } from '@thirdweb-dev/chains';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useDisplayName } from "@huddle01/react/app-utils";
 import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
-import { HiMiniVideoCamera, HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
-import { BsMicFill, BsMic, BsMicMute,  BsTelephoneX, BsTelephone, BsXCircle, BsGlobeAmericas } from "react-icons/bs";
-import axios from 'axios';
+import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
+import { BsMic, BsMicMute,  BsTelephoneX, BsTelephone, BsXCircle, BsGlobeAmericas } from "react-icons/bs";
+//import axios from 'axios';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { FiArrowRight, FiChevronLeft, FiChevronRight} from 'react-icons/fi'
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { IPeer } from '@huddle01/react/dist/declarations/src/atoms/peers.atom';
 import { Loading } from '../../Genericos/Loading'
 import { createRoom } from '../../../pages/api/roomId';
+import { AuthContext } from '../../../contexts/Auth';
+
 //Hamburguer
 interface NavbarProps {
   isOpen: boolean;
@@ -39,21 +39,20 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, toggleSidebar }) => {
 export function Welcome(){ 
   const { initialize, isInitialized, roomState } = useHuddle01();
   const { joinLobby } = useLobby();  
-  //const [roomId, setRoomId] = useState("");
   const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stopProducingAudio, stream:micStream } = useAudio();
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stopProducingVideo, stream:camStream } = useVideo(); 
-  const { joinRoom, leaveRoom, endRoom } = useRoom();
+  const { joinRoom, endRoom } = useRoom();
   const { peers } = usePeers();  
   const { setDisplayName, error: displayNameError } = useDisplayName();
   const [videoFunction, setVideoFunction] = useState('play'); // Pode ser 'play' ou 'stop'  
   const [audioFunction, setAudioFunction] = useState('play'); 
-  const [isMuted, setIsMuted] = useState(false); 
   const [isOpen, setOpen] = useState(false) // hamburguer
   const videoRef = useRef<HTMLVideoElement | null>(null); 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { changePeerRole, changeRoomControls, kickPeer } = useAcl();
+  const { changePeerRole, kickPeer } = useAcl();
   const { me } = useHuddle01();
   const { role, displayName } = me;
+  const { message } : any = useContext(AuthContext);
   
   let roomIdInitialized = false;
 
@@ -75,16 +74,15 @@ export function Welcome(){
  
 
   useEffect(() => {
-    // Essa função será executada sempre que camStream mudar
     if (camStream) {
-      produceVideo(camStream); // Execute a função quando camStream estiver disponível
+      produceVideo(camStream);
     }
   }, [camStream]);
 
   useEffect(() => {
     // Essa função será executada sempre que micStream mudar
     if (micStream) {
-      produceAudio(micStream!); // Execute a função quando micStream estiver disponível
+      produceAudio(micStream!); 
     }
   }, [micStream]);
 
@@ -93,7 +91,7 @@ export function Welcome(){
       videoRef.current.srcObject = camStream;
     }
 
-    if (micStream && audioRef.current) { // Verifica se audioRef.current não é nulo
+    if (micStream && audioRef.current) {
       audioRef.current.srcObject = micStream;
     }
   }, [camStream, micStream]);
@@ -187,12 +185,10 @@ export function Welcome(){
   };
 
   useEffect(() => {
-    // its preferable to use env vars to store projectId
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
     initializeRoomId(); 
   
   }, []);
-
 
   return (
     <div className={styles.mainContainer}>   
@@ -203,6 +199,7 @@ export function Welcome(){
       </div>
       <div className={styles.callContainer}>
        <h1>10ª Call da Comunidade{roomState}</h1> 
+       <p>Name: {message.name} </p>
       </div>
            
       <div className={styles.auditorioContainer}>     
@@ -259,7 +256,7 @@ export function Welcome(){
             )}
           </div>         
                
-        <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
+       {/* <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
           {Object.values(peers)
             .filter((peer) => peer.cam || peer.mic)
             .map((peer) => (
@@ -279,7 +276,7 @@ export function Welcome(){
                 )}
               </div>
             ))}
-        </Carousel>      
+                </Carousel> */}     
           
         <div className={styles.admButtons}>
           
