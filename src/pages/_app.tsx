@@ -23,10 +23,11 @@ export default function App({
         activeChain={Polygon}
         clientId="JbArIwMfUBGW_HnQmNGaIaGqVrSt5xIn"
         autoConnect={false}>
-        <AuthProvider>       
-          <ToastContainer autoClose={3000}/>              
-          <Component {...pageProps}/> 
-        </AuthProvider>    
+               
+          <ToastContainer autoClose={3000}/> 
+          <AuthProvider>             
+            <Component {...pageProps}/> 
+          </AuthProvider>    
       </ThirdwebProvider>       
   )
 }

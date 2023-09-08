@@ -53,12 +53,8 @@ export function Auditorio(){
   const [displayNameText, setDisplayNameText] = useState(" ");
   const { me } = useHuddle01();
   const { role, displayName } = me;
-  const { signIn } : any = useContext(AuthContext);
-
-  const handleSendMessage: () => void = () => {
-    const name = me.displayName;
-    signIn(name);
-  };
+  const { id , Nome } : any = useContext(AuthContext);
+  console.log('ID acessado na página Auditorio:', id);
 
   let roomIdInitialized = false;
 
@@ -194,7 +190,8 @@ export function Auditorio(){
           <button className={`${styles.btnStatus} ${roomState.valueOf() === 'ROOM' ? styles.greenButton : styles.redButton}`} />
           <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon} /> {Object.values(peers).length}
         </div><div className={styles.callContainer}>
-            <h1>10ª Call da Comunidade</h1>           
+            <h1>10ª Call da Comunidade</h1> 
+            <p>{Nome}Aqui: {id}</p>          
           </div>
           <div className={styles.auditorioContainer}>
             <div className={styles.settingsContainer}>
@@ -233,9 +230,9 @@ export function Auditorio(){
               )}
             </div>
 
-           {/* <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
+            <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
                 {Object.values(peers)
-                  .filter((peer) => peer.cam || peer.mic && peer.role !== 'host')
+                  .filter((peer) => peer.cam && peer.mic)
                   .map((peer) => (
                     <div key={peer.peerId} className={styles.carouselItem}>
                       {peer.cam && (
@@ -251,7 +248,7 @@ export function Auditorio(){
                       )}
                   </div>
                 ))}
-              </Carousel>*/}
+              </Carousel>
 
             <div className={styles.admButtons}>
               <button
@@ -280,7 +277,6 @@ export function Auditorio(){
                 </>
               )}
 
-              <button onClick={handleSendMessage}>Enviar Mensagem</button>
   
               </div>                     
           </div>

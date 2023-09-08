@@ -1,20 +1,18 @@
 import styles from  './styles.module.scss'
-import { useHuddle01 } from '@huddle01/react';
-import { Video, Audio } from '@huddle01/react/components';
-import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers, useAcl } from '@huddle01/react/hooks';
-//import { PeerTestnet } from '@thirdweb-dev/chains';
 import Link from 'next/link';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { useHuddle01 } from '@huddle01/react';
+import { Video, Audio } from '@huddle01/react/components';
 import { useDisplayName } from "@huddle01/react/app-utils";
+import { IPeer } from '@huddle01/react/dist/declarations/src/atoms/peers.atom';
+import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers, useAcl } from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
 import { BsMic, BsMicMute,  BsTelephoneX, BsTelephone, BsXCircle, BsGlobeAmericas } from "react-icons/bs";
-//import axios from 'axios';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { IPeer } from '@huddle01/react/dist/declarations/src/atoms/peers.atom';
 import { Loading } from '../../Genericos/Loading'
 import { createRoom } from '../../../pages/api/roomId';
 import { AuthContext } from '../../../contexts/Auth';
@@ -44,7 +42,7 @@ export function Welcome(){
   const { joinRoom, endRoom } = useRoom();
   const { peers } = usePeers();  
   const { setDisplayName, error: displayNameError } = useDisplayName();
-  const [videoFunction, setVideoFunction] = useState('play'); // Pode ser 'play' ou 'stop'  
+  const [videoFunction, setVideoFunction] = useState('play');  
   const [audioFunction, setAudioFunction] = useState('play'); 
   const [isOpen, setOpen] = useState(false) // hamburguer
   const videoRef = useRef<HTMLVideoElement | null>(null); 
@@ -52,50 +50,24 @@ export function Welcome(){
   const { changePeerRole, kickPeer } = useAcl();
   const { me } = useHuddle01();
   const { role, displayName } = me;
-  const { message } : any = useContext(AuthContext);
+  const { setId } : any = useContext(AuthContext);
+
   
   let roomIdInitialized = false;
 
   async function initializeRoomId() {
-    // Chame a função createRoom para obter o roomId
+   
     if (!roomIdInitialized) {
-      // Defina a variável de controle como verdadeira para evitar chamadas repetidas
       roomIdInitialized = true;
       
-      // Chame a função createRoom para obter o roomId
       const roomId = await createRoom();
   
-      // Armazene o roomId no sessionStorage
       sessionStorage.setItem('roomId', roomId);
       joinLobby(roomId);
-      console.log("ESSee: ", roomId, roomState);
     }
-  }
- 
+  } 
 
-  useEffect(() => {
-    if (camStream) {
-      produceVideo(camStream);
-    }
-  }, [camStream]);
-
-  useEffect(() => {
-    // Essa função será executada sempre que micStream mudar
-    if (micStream) {
-      produceAudio(micStream!); 
-    }
-  }, [micStream]);
-
-  useEffect(() => {
-    if (camStream && videoRef.current) { // Verifica se videoRef.current não é nulo
-      videoRef.current.srcObject = camStream;
-    }
-
-    if (micStream && audioRef.current) {
-      audioRef.current.srcObject = micStream;
-    }
-  }, [camStream, micStream]);
-
+  
   const handleLinkClick = () => { //hamburguer
     setOpen(false);
   }; 
@@ -184,6 +156,37 @@ export function Welcome(){
     } 
   };
 
+
+  useEffect(() => {
+    // Gere o ID (substitua com sua lógica de geração de ID)
+    const generatedId = 'Id da Sala';
+
+    setId(generatedId);
+    console.log('ID gerado:', generatedId);
+  }, []);
+  
+  useEffect(() => {
+    if (camStream) {
+      produceVideo(camStream);
+    }
+  }, [camStream]);
+
+  useEffect(() => {
+    if (micStream) {
+      produceAudio(micStream!); 
+    }
+  }, [micStream]);
+
+  useEffect(() => {
+    if (camStream && videoRef.current) { 
+      videoRef.current.srcObject = camStream;
+    }
+
+    if (micStream && audioRef.current) {
+      audioRef.current.srcObject = micStream;
+    }
+  }, [camStream, micStream]);
+
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
     initializeRoomId(); 
@@ -198,10 +201,8 @@ export function Welcome(){
           <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
       </div>
       <div className={styles.callContainer}>
-       <h1>10ª Call da Comunidade{roomState}</h1> 
-       <p>Name: {message.name} </p>
-      </div>
-           
+       <h1>10ª Call da Comunidade{roomState}</h1>        
+      </div>           
       <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>        
           <div className={styles.transmitionHost}>      
@@ -238,17 +239,17 @@ export function Welcome(){
                           changePeerRole(peer.peerId, 'peer');
                         }
                       }}>
-                        {(peer.role === 'peer') ? 
-                          <>
-                            <BsGlobeAmericas className={styles.iconsPlay} />
-                            <BsTelephone className={styles.iconsPlay}/>
-                          </> 
-                          : 
-                          <>
-                            <BsGlobeAmericas className={styles.iconsStop}/>
-                            <BsTelephone className={styles.iconsStop} />
-                          </>
-                          } 
+                      {(peer.role === 'peer') ? 
+                        <>
+                          <BsGlobeAmericas className={styles.iconsPlay} />
+                          <BsTelephone className={styles.iconsPlay}/>
+                        </> 
+                        : 
+                        <>
+                          <BsGlobeAmericas className={styles.iconsStop}/>
+                          <BsTelephone className={styles.iconsStop} />
+                        </>
+                        } 
                     </button>
                   </span> 
                 ))} 
@@ -256,9 +257,9 @@ export function Welcome(){
             )}
           </div>         
                
-       {/* <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
+        <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
           {Object.values(peers)
-            .filter((peer) => peer.cam || peer.mic)
+            .filter((peer) => peer.cam && peer.mic)
             .map((peer) => (
               <div key={peer.peerId} className={styles.carouselItem}>
                 {peer.cam && (
@@ -275,35 +276,28 @@ export function Welcome(){
                   />
                 )}
               </div>
-            ))}
-                </Carousel> */}     
+            ))
+          }
+        </Carousel>     
           
-        <div className={styles.admButtons}>
-          
+        <div className={styles.admButtons}>          
           <button onClick={handleRoomButtonClick}>
             {buttonLabelRoom()}
-            </button>  
+          </button>  
 
-          <button
-            disabled={!fetchVideoStream.isCallable }
-            onClick={handleVideoButtonClick}
-            >
-              {buttonLabelVideo()}
-             </button>
+          <button onClick={handleVideoButtonClick}>
+            {buttonLabelVideo()}
+          </button>
 
-          <button
-            disabled={!fetchAudioStream.isCallable || !produceAudio.isCallable }
-            onClick={handleAudioButtonClick}
-            >
-              {buttonLabelAudio()}
+          <button onClick={handleAudioButtonClick}>
+            {buttonLabelAudio()}
           </button> 
 
-          <Link className={styles.btnAuditorio} href="/auditorio" target='blank' passHref>
-            ENTRAR NO EVENTO
+          <Link href="/auditorio" target='blank' passHref>
+          ENTRAR NO EVENTO
           </Link>
         </div>
-      </div>  
-      
+      </div>        
     </div>    
   );
 };
