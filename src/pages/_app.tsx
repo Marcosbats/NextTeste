@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ToastContainer } from 'react-toastify'
 import { ThirdwebProvider, metamaskWallet,  coinbaseWallet,  walletConnect } from "@thirdweb-dev/react"
 import { Polygon } from "@thirdweb-dev/chains";
-import { AuthProvider } from '../contexts/Auth';
+import { AuthProvider } from '../contexts/auth';
 
 export default function App({
   Component, pageProps: { session, ...pageProps }

@@ -1,13 +1,13 @@
 import Head from 'next/head'
-import styles from './styles.module.scss'
-import { Auditorio } from '../../components/Auditorio'
+
+import { Entre } from '../../components/Link'
 import { Header } from '../../components/Genericos/Header'
 import { Footer } from '../../components/Genericos/Footer'
 
 export default function Call(){
   
   return (
-    <div className={styles.container}>
+    <div >
       <Head>
         <title>iBEED</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -25,9 +25,9 @@ export default function Call(){
         <meta property="twitter:card" content="summary_large_image"></meta>
       </Head>
       
-      <main className={styles.mainContainer}>
+      <main >
           <Header />            
-          <Auditorio />          
+          <Entre />          
           <Footer />        
       </main>      
     </div>
