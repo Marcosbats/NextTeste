@@ -81,8 +81,8 @@ export function Welcome(){
     } else if (roomState === 'ROOM') { 
         endRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');        
-        //initializeRoomId();
-        joinLobby('cjg-cykj-ior');
+        initializeRoomId();
+        //joinLobby('cjg-cykj-ior');
         setAudioFunction('play');
         setVideoFunction('play');
     }
@@ -180,8 +180,8 @@ export function Welcome(){
 
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-   // initializeRoomId(); 
-    joinLobby('cjg-cykj-ior');
+    initializeRoomId(); 
+    //joinLobby('cjg-cykj-ior');
   
   }, []);
 
@@ -243,7 +243,7 @@ export function Welcome(){
                 .filter((peer) => peer.displayName) 
                 .map((peer, index) => (                  
                   <span key={index}>
-                    <LuUser /> {(peer.role === 'host') ? ("ANFITRIÃO") : (peer.displayName)} 
+                    <LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)} 
                     <button onClick={() => {
                         if (peer.role === 'peer') {
                           changePeerRole(peer.peerId, 'coHost');

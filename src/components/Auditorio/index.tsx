@@ -89,8 +89,8 @@ export function Auditorio(){
     } else if (roomState.valueOf() === 'ROOM') { 
         leaveRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        //initializeRoomId();
-        joinLobby('cjg-cykj-ior');
+        initializeRoomId();
+        //joinLobby('cjg-cykj-ior');
         setAudioFunction('play');
         setVideoFunction('play');
     }
@@ -175,8 +175,8 @@ export function Auditorio(){
 
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    //initializeRoomId();     
-    joinLobby('cjg-cykj-ior');
+    initializeRoomId();     
+    //joinLobby('cjg-cykj-ior');
   }, []);
 
   return (
@@ -200,7 +200,7 @@ export function Auditorio(){
             {Object.values(peers)
             .filter((peer) => peer.cam && peer.mic && peer.role === 'host' || peer.role === 'coHost')
             .map((peer) => (
-              <div key={peer.peerId} className={peer.role === 'coHost' || me.role === 'coHost' ? styles.transmitionPeer : styles.transmitionHost} >
+              <div key={peer.peerId} className={ peer.role === 'coHost' || me.role === 'coHost' ? styles.transmitionPeer : styles.transmitionHost} >
                 {peer.cam && (
                   <Video
                     className={styles.videoPeer}
@@ -274,7 +274,7 @@ export function Auditorio(){
             {buttonLabelRoom()}
           </button>
 
-          { me.role === 'coHost' && (
+          { me.role === 'coHost' &&(
             <>
               <button onClick={videoButtonClick}>
                 {buttonLabelVideo()}
@@ -284,7 +284,8 @@ export function Auditorio(){
                 {buttonLabelAudio()}
               </button> 
             </>
-          )} 
+          ) 
+          } 
         </div>                     
       </div>
     </div>    
