@@ -89,8 +89,8 @@ export function Auditorio(){
     } else if (roomState.valueOf() === 'ROOM') { 
         leaveRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        initializeRoomId();
-        //joinLobby('cjg-cykj-ior');
+        //initializeRoomId();
+        joinLobby('vcp-gxol-vrk');
         setAudioFunction('play');
         setVideoFunction('play');
     }
@@ -175,8 +175,8 @@ export function Auditorio(){
 
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    initializeRoomId();     
-    //joinLobby('cjg-cykj-ior');
+    //initializeRoomId();     
+    joinLobby('vcp-gxol-vrk');
   }, []);
 
   return (
@@ -198,12 +198,12 @@ export function Auditorio(){
         <div className={styles.settingsContainer}>
           <div className={styles.transmitionContainer}>      
             {Object.values(peers)
-            .filter((peer) => peer.cam && peer.mic && peer.role === 'host' || peer.role === 'coHost')
+            .filter((peer) => peer.role === 'host')
             .map((peer) => (
-              <div key={peer.peerId} className={ peer.role === 'coHost' || me.role === 'coHost' ? styles.transmitionPeer : styles.transmitionHost} >
+              <div key={peer.peerId} className={styles.transmitionHost} >
                 {peer.cam && (
                   <Video
-                    className={styles.videoPeer}
+                    className={styles.videoHost}
                     peerId={peer.peerId}
                     track={peer.cam!}
                   />
@@ -216,24 +216,7 @@ export function Auditorio(){
                 )}
               </div>
               ))
-            } 
-            { me.role === 'coHost' && (
-              <div className={styles.transmitionMe}>             
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className={styles.videoMe}
-                />
-                <audio
-                  ref={audioRef}
-                  autoPlay
-                  playsInline
-                  className={styles.audioElement}
-                /> 
-              </div> 
-            )}     
+            }    
           </div> 
           <div className={styles.navbar}>
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} />
@@ -249,9 +232,9 @@ export function Auditorio(){
           )}
         </div>
 
-      {/*  <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
+       <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
           {Object.values(peers)
-            .filter((peer) => peer.cam && peer.mic && peer.role === 'coHost')
+            .filter((peer) => peer.role === 'coHost')
             .map((peer) => (
             <div key={peer.peerId} className={styles.carouselItem}>
               {peer.cam && (
@@ -267,7 +250,7 @@ export function Auditorio(){
               )}
             </div>
           ))}
-              </Carousel>*/}
+              </Carousel>
 
         <div className={styles.admButtons}>
           <button onClick={roomButtonClick}>

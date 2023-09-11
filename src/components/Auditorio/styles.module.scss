@@ -159,41 +159,21 @@
         align-items: center;
         justify-content: center;
         
-       .transmitionPeer{
-        width: 50%;
+       .transmitionHost{
+        width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-       }
 
-      .transmitionHost{
-        width: 100%;
-        height: 100%;
-      }
-         
-      .videoPeer{
-        width: 100%;
-        height: 100%;
-        object-fit: cover;          
-        border-radius: 10px;
-      } 
-
-       .transmitionMe{
-        width: 50%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-       
-        .videoMe{
+        .videoHost{
           width: 100%;
           height: 100%;
-          object-fit: cover;         
+          object-fit: cover;          
           border-radius: 10px;
-        }
+        } 
+       }       
 
-       }
       }    
    
   }  

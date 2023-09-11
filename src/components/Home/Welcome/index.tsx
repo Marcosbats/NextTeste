@@ -10,12 +10,17 @@ import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
-import { BsMic, BsMicMute,  BsTelephoneX, BsTelephone, BsXCircle, BsGlobeAmericas } from "react-icons/bs";
+import { BsMic, BsMicMute,  BsTelephoneX, BsX } from "react-icons/bs";
+import { IoLogIn } from "react-icons/io5";
+import { RiSpeakFill } from "react-icons/ri";
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Loading } from '../../Genericos/Loading'
 import { createRoom } from '../../../pages/api/roomId';
 import { useAuthContext } from '../../../contexts/auth';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 //Hamburguer
 interface NavbarProps {
@@ -51,7 +56,33 @@ export function Welcome(){
   const videoRef = useRef<HTMLVideoElement | null>(null); 
   const audioRef = useRef<HTMLAudioElement | null>(null);  
   const { setId } : any = useAuthContext();
+  const settings = {
+    dots: true,
+    infinite: true,
+    slidesToShow: 2, // Mostra 4 slides por vez
+    slidesToScroll: 1,
+    arrows: true, // Exibe setas de navegação
+  };
 
+  const peerComponents = Object.values(peers)
+  .filter((peer) => peer.role === 'coHost')
+  .map((peer) => (
+    <div key={peer.peerId} className={styles.slickItem}>
+      {peer.cam && (
+        <Video
+          className={styles.videoPeers}
+          peerId={peer.peerId}
+          track={peer.cam!}
+        />
+      )}
+      {peer.mic && (
+        <Audio
+          peerId={peer.peerId}
+          track={peer.mic!}
+        />
+      )}
+    </div>
+  ));
   let roomIdInitialized = false;
 
   async function initializeRoomId() {
@@ -81,12 +112,13 @@ export function Welcome(){
     } else if (roomState === 'ROOM') { 
         endRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');        
-        initializeRoomId();
-        //joinLobby('cjg-cykj-ior');
+        //initializeRoomId();
+        joinLobby('vcp-gxol-vrk');
         setAudioFunction('play');
         setVideoFunction('play');
     }
   };
+
 
   const buttonLabelRoom = () => {
     if (roomState === 'INIT') {       
@@ -94,7 +126,7 @@ export function Welcome(){
               <Loading />                      
              </>                                
     } else if (roomState === 'LOBBY') {
-      return <> <BsTelephone className={styles.iconsPlay}/> 
+      return <> <IoLogIn className={styles.iconsPlay}/> 
               Entrar na Sala
              </> ;
     } else if (roomState === 'ROOM') {
@@ -180,8 +212,8 @@ export function Welcome(){
 
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    initializeRoomId(); 
-    //joinLobby('cjg-cykj-ior');
+    //initializeRoomId(); 
+    joinLobby('vcp-gxol-vrk');
   
   }, []);
 
@@ -197,8 +229,7 @@ export function Welcome(){
       </div>           
     <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>        
-          <div className={`${Object.values(peers)
-            .filter((peer) =>  peer.cam && peer.mic && peer.role === 'coHost')}` ? styles.transmitioncoHost : styles.transmitionHost}>      
+          <div className={styles.transmitionHost}>      
             <video
               ref={videoRef}
               autoPlay
@@ -212,27 +243,7 @@ export function Welcome(){
               playsInline
               className={styles.audioElement}
             /> 
-
-            {Object.values(peers)
-            .filter((peer) => peer.cam && peer.mic && peer.role === 'coHost')
-            .map((peer) => (
-              <div key={peer.peerId} className={styles.carouselItem}>
-                {peer.cam && (
-                  <Video
-                    className={styles.videoCoHost}
-                    peerId={peer.peerId}
-                    track={peer.cam!}
-                  />
-                )}
-                {peer.mic && (
-                  <Audio
-                    peerId={peer.peerId}
-                    track={peer.mic!}
-                  />
-                )}
-              </div>
-            ))
-          }            
+        
           </div> 
           <div className={styles.navbar}>                
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} /> 
@@ -243,6 +254,7 @@ export function Welcome(){
                 .filter((peer) => peer.displayName) 
                 .map((peer, index) => (                  
                   <span key={index}>
+                    <button onClick={() => kickPeer(peer.peerId)}><BsX className={styles.iconsStop}/></button>
                     <LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)} 
                     <button onClick={() => {
                         if (peer.role === 'peer') {
@@ -253,13 +265,11 @@ export function Welcome(){
                       }}>
                       {(peer.role === 'peer') ? 
                         <>
-                          <BsGlobeAmericas className={styles.iconsPlay} />
-                          <BsTelephone className={styles.iconsPlay}/>
+                          <RiSpeakFill className={styles.iconsPlay} />
                         </> 
                         : 
                         <>
-                          <BsGlobeAmericas className={styles.iconsStop}/>
-                          <BsTelephone className={styles.iconsStop} />
+                          <RiSpeakFill className={styles.iconsStop}/>
                         </>
                         } 
                     </button>
@@ -269,9 +279,13 @@ export function Welcome(){
             )}
           </div>         
                
-       {/* <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
+        <Carousel 
+        showStatus={false} 
+        showThumbs={false} 
+        showIndicators={false} 
+        className={styles.customCarousel}>
           {Object.values(peers)
-            .filter((peer) => peer.cam && peer.mic && peer.role === 'peer')
+            .filter((peer) => peer.role === 'coHost')
             .map((peer) => (
               <div key={peer.peerId} className={styles.carouselItem}>
                 {peer.cam && (
@@ -290,8 +304,14 @@ export function Welcome(){
               </div>
             ))
           }
-        </Carousel> */}    
-          
+        </Carousel>  
+
+        <Slider {...settings} className={styles.Slider}> 
+        
+            {peerComponents} 
+            
+        </Slider>
+                
         <div className={styles.admButtons}>          
           <button onClick={roomButtonClick}>
             {buttonLabelRoom()}
