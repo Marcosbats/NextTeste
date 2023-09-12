@@ -90,7 +90,7 @@ export function Auditorio(){
         leaveRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
         //initializeRoomId();
-        joinLobby('vcp-gxol-vrk');
+        joinLobby('xhl-nhth-yso');
         setAudioFunction('play');
         setVideoFunction('play');
     }
@@ -176,7 +176,7 @@ export function Auditorio(){
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
     //initializeRoomId();     
-    joinLobby('vcp-gxol-vrk');
+    joinLobby('xhl-nhth-yso');
   }, []);
 
   return (

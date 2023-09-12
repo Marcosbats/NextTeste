@@ -13,29 +13,11 @@ import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2"
 import { BsMic, BsMicMute,  BsTelephoneX, BsX } from "react-icons/bs";
 import { IoLogIn } from "react-icons/io5";
 import { RiSpeakFill } from "react-icons/ri";
-import { Carousel } from 'react-responsive-carousel';
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Loading } from '../../Genericos/Loading'
 import { createRoom } from '../../../pages/api/roomId';
 import { useAuthContext } from '../../../contexts/auth';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
-
-import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
-
-import { Swiper, SwiperSlide } from 'swiper/react';
-
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/scrollbar';
-
-
 
 //Hamburguer
 interface NavbarProps {
@@ -71,14 +53,6 @@ export function Welcome(){
   const videoRef = useRef<HTMLVideoElement | null>(null); 
   const audioRef = useRef<HTMLAudioElement | null>(null);  
   const { setId } : any = useAuthContext();
-  const settings = {
-    dots: true,
-    infinite: true,
-    slidesToShow: 1, // Mostra 4 slides por vez
-    slidesToScroll: 1,
-    arrows: true, // Exibe setas de navegação
-  };
-
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
   .map((peer) => (
@@ -98,6 +72,7 @@ export function Welcome(){
       )}
     </div>
   ));
+ 
   let roomIdInitialized = false;
 
   async function initializeRoomId() {
@@ -128,7 +103,7 @@ export function Welcome(){
         endRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');        
         //initializeRoomId();
-        joinLobby('vcp-gxol-vrk');
+        joinLobby('xhl-nhth-yso');
         setAudioFunction('play');
         setVideoFunction('play');
     }
@@ -228,7 +203,7 @@ export function Welcome(){
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
     //initializeRoomId(); 
-    joinLobby('vcp-gxol-vrk');
+    joinLobby('xhl-nhth-yso');
   
   }, []);
 
@@ -293,25 +268,6 @@ export function Welcome(){
               </div>
             )}
           </div>     
-
-        <Carousel>{slides}</Carousel>    
-      
-        <Slider {...settings}>  
-          <>{slides}</>        
-           
-        </Slider>
-        <AliceCarousel><>{slides}</> </AliceCarousel>
-        <Swiper
-         modules={[Navigation, Pagination, Scrollbar, A11y]}
-         spaceBetween={50}
-         slidesPerView={3}
-         navigation
-         pagination={{ clickable: true }}
-         scrollbar={{ draggable: true }}
-          onSlideChange={() => console.log('slide change')}
-          onSwiper={(swiper) => console.log(swiper)}
-        > {slides}</Swiper>
-                
         <div className={styles.admButtons}>          
           <button onClick={roomButtonClick}>
             {buttonLabelRoom()}
@@ -329,7 +285,14 @@ export function Welcome(){
           ENTRAR NO EVENTO
           </Link>
         </div>
-      </div>        
+        <AliceCarousel>
+          {slides}
+        </AliceCarousel>
+        
+       
+      </div>  
+      
+             
     </div>    
   );
 };

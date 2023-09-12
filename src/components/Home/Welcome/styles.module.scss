@@ -253,18 +253,27 @@
       background: #23d823;
 
       .slickItem{
-        width: 300px;
+        width: 30%;
         height: 100%;
-        background: #220c0c;
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        background: #a53f3f;
 
-        .videoPeer{
+        .videoPeers{
           width: 80%;
-
+          height: 80%; 
+          object-fit: cover;
+          margin: 0 1rem;        
+          display: flex;
+          align-items: center;
+          justify-content: space-evenly;
           background: blue;
 
         }
       }
     }
+
      
     .admButtons{
       width: 100%;
@@ -292,6 +301,32 @@
         &:hover{
           background: #181a20;
         }
+      }
+
+      .slider{
+        max-width: 500px;
+        height: 100px;
+        background: red;
+
+        .swiper{
+          padding: 32px;
+          max-width: 500px;
+
+          .swiper-wrapper{
+            max-width: 450px;
+
+            .swiper-slide{
+              display: flex;
+              justify-content: center;
+              width: 90px;
+              color: aqua;
+              background: blue;
+            }
+          }
+        }
+        
+        
+
       }
     }
   }  
