@@ -22,6 +22,21 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
+import AliceCarousel from 'react-alice-carousel';
+import 'react-alice-carousel/lib/alice-carousel.css';
+
+import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
+
+import { Swiper, SwiperSlide } from 'swiper/react';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
+
+
+
 //Hamburguer
 interface NavbarProps {
   isOpen: boolean;
@@ -277,12 +292,25 @@ export function Welcome(){
                 ))} 
               </div>
             )}
-          </div>         
+          </div>     
+
+        <Carousel>{slides}</Carousel>    
       
-        <Slider {...settings} > 
-         
-            {slides}
+        <Slider {...settings}>  
+          <>{slides}</>        
+           
         </Slider>
+        <AliceCarousel><>{slides}</> </AliceCarousel>
+        <Swiper
+         modules={[Navigation, Pagination, Scrollbar, A11y]}
+         spaceBetween={50}
+         slidesPerView={3}
+         navigation
+         pagination={{ clickable: true }}
+         scrollbar={{ draggable: true }}
+          onSlideChange={() => console.log('slide change')}
+          onSwiper={(swiper) => console.log(swiper)}
+        > {slides}</Swiper>
                 
         <div className={styles.admButtons}>          
           <button onClick={roomButtonClick}>
