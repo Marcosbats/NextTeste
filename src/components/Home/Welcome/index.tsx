@@ -59,12 +59,12 @@ export function Welcome(){
   const settings = {
     dots: true,
     infinite: true,
-    slidesToShow: 2, // Mostra 4 slides por vez
+    slidesToShow: 1, // Mostra 4 slides por vez
     slidesToScroll: 1,
     arrows: true, // Exibe setas de navegação
   };
 
-  const peerComponents = Object.values(peers)
+  const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
   .map((peer) => (
     <div key={peer.peerId} className={styles.slickItem}>
@@ -278,38 +278,10 @@ export function Welcome(){
               </div>
             )}
           </div>         
-               
-        <Carousel 
-        showStatus={false} 
-        showThumbs={false} 
-        showIndicators={false} 
-        className={styles.customCarousel}>
-          {Object.values(peers)
-            .filter((peer) => peer.role === 'coHost')
-            .map((peer) => (
-              <div key={peer.peerId} className={styles.carouselItem}>
-                {peer.cam && (
-                  <Video
-                    className={styles.videoPeers}
-                    peerId={peer.peerId}
-                    track={peer.cam!}
-                  />
-                )}
-                {peer.mic && (
-                  <Audio
-                    peerId={peer.peerId}
-                    track={peer.mic!}
-                  />
-                )}
-              </div>
-            ))
-          }
-        </Carousel>  
-
-        <Slider {...settings} className={styles.Slider}> 
-        
-            {peerComponents} 
-            
+      
+        <Slider {...settings} > 
+         
+            {slides}
         </Slider>
                 
         <div className={styles.admButtons}>          
