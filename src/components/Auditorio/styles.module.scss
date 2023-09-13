@@ -205,6 +205,40 @@
         border-radius: 10px;
       }
     }
+
+    .Alice{
+      width: 70%;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 30px;
+     
+      .aliceSlide{
+        display: flex;
+      }
+
+      .slickItem{
+        width: 80%;
+        height: 300px;
+        padding: 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+       
+        .videoPeers{
+          width: 80%;
+          height: 80%; 
+          object-fit: cover;
+          margin: 0 1rem;  
+          border-radius: 10px;      
+          display: flex;
+          align-items: center;
+          justify-content: space-evenly;
+         
+        }
+      }
+    } 
   
     .admButtons{
       width: 100%;

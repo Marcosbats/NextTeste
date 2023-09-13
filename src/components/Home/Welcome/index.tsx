@@ -10,7 +10,7 @@ import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
-import { BsMic, BsMicMute,  BsTelephoneX, BsX } from "react-icons/bs";
+import { BsMic, BsMicMute,  BsTelephoneX, BsX, BsFillCameraVideoOffFill } from "react-icons/bs";
 import { IoLogIn } from "react-icons/io5";
 import { RiSpeakFill } from "react-icons/ri";
 import { Loading } from '../../Genericos/Loading'
@@ -53,6 +53,10 @@ export function Welcome(){
   const videoRef = useRef<HTMLVideoElement | null>(null); 
   const audioRef = useRef<HTMLAudioElement | null>(null);  
   const { setId } : any = useAuthContext();
+  const responsive = {
+    0: { items: 1 }, // Mostrar 1 slide em telas menores que 768px
+    768: { items: 3 }, // Mostrar 2 slides em telas maiores que 768px
+  };
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
   .map((peer) => (
@@ -217,27 +221,33 @@ export function Welcome(){
       <div className={styles.callContainer}>
        <h1>10ª Call da Comunidade</h1>        
       </div>           
-    <div className={styles.auditorioContainer}>     
+      <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>        
-          <div className={styles.transmitionHost}>      
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={styles.videoHost}
-            />
-            <audio
-              ref={audioRef}
-              autoPlay
-              playsInline
-              className={styles.audioElement}
-            /> 
-        
+          <div className={styles.transmitionHost}>
+          {videoFunction === 'play' ? (
+              <div className={styles.videoHostPlay}>
+                <BsFillCameraVideoOffFill className={styles.cameraOff} />
+              </div>
+            ) : (
+              <div className={styles.videoHost}>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={styles.videoHost}
+                />
+                <audio
+                  ref={audioRef}
+                  autoPlay
+                  playsInline
+                  className={styles.audioElement}
+                />
+              </div>
+            )}          
           </div> 
           <div className={styles.navbar}>                
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} /> 
-          </div>
             {isOpen && (
               <div className={styles.sidebar}>
                 {Object.values(peers)
@@ -267,7 +277,9 @@ export function Welcome(){
                 ))} 
               </div>
             )}
-          </div>     
+          </div>            
+        </div>  
+         
         <div className={styles.admButtons}>          
           <button onClick={roomButtonClick}>
             {buttonLabelRoom()}
@@ -284,15 +296,21 @@ export function Welcome(){
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
           </Link>
-        </div>
-        <AliceCarousel>
-          {slides}
-        </AliceCarousel>
+          <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
         
-       
-      </div>  
-      
-             
+        </div>
+        <div className={styles.Alice} >
+          <AliceCarousel
+            responsive={responsive}
+            items={slides}
+            //disableButtonsControls
+            >
+              <div className={styles.aliceSlide}>
+            {slides}
+            </div>
+          </AliceCarousel>
+        </div>       
+      </div>                
     </div>    
   );
 };

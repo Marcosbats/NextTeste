@@ -10,11 +10,12 @@ import { toast } from 'react-toastify'
 import { LuUser, LuUsers } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash } from "react-icons/hi2";
 import { BsMic, BsMicMute, BsTelephoneX } from "react-icons/bs";
-import { Carousel } from 'react-responsive-carousel';
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { ModalAuditorio } from '../../components/Genericos/Modal';
 import { createRoom } from '../../pages/api/roomId';
 import { useAuthContext } from '../../contexts/auth';
+
+import AliceCarousel from 'react-alice-carousel';
+import 'react-alice-carousel/lib/alice-carousel.css';
 
 //Hamburguer
 interface NavbarProps {
@@ -52,6 +53,47 @@ export function Auditorio(){
   const { role, displayName } = me;
   const { id } : any = useAuthContext();
   console.log('ID acessado na página Auditorio:', id);
+  const responsive = {
+    0: { items: 1 }, // Mostrar 1 slide em telas menores que 768px
+    768: { items: 3 }, // Mostrar 2 slides em telas maiores que 768px
+  };
+
+  const slides = Object.values(peers)
+  .filter((peer) => peer.role === 'coHost')
+  .map((peer) => (
+    <div key={peer.peerId} className={styles.slickItem}>
+      {peer.cam && (
+        <Video
+          className={styles.videoPeers}
+          peerId={peer.peerId}
+          track={peer.cam!}
+        />
+      )}
+      {peer.mic && (
+        <Audio
+          peerId={peer.peerId}
+          track={peer.mic!}
+        />
+      )}
+    </div>
+  ))
+  me.role === 'coHost' ? (
+    <div className={styles.slickItem}>
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        className={styles.videoPeers}
+      />
+      <audio
+        ref={audioRef}
+        autoPlay
+        playsInline
+        className={styles.audioElement}
+      />
+    </div>
+  );
   
   let roomIdInitialized = false;
 
@@ -231,26 +273,19 @@ export function Auditorio(){
             </div>
           )}
         </div>
-
-       <Carousel showStatus={false} showThumbs={false} showIndicators={false} className={styles.customCarousel}>
-          {Object.values(peers)
-            .filter((peer) => peer.role === 'coHost')
-            .map((peer) => (
-            <div key={peer.peerId} className={styles.carouselItem}>
-              {peer.cam && (
-                <Video
-                className={styles.videoPeers}
-                peerId={peer.peerId}
-                track={peer.cam!} />
-              )}
-              {peer.mic && (
-                <Audio
-                  peerId={peer.peerId}
-                  track={peer.mic!} />
-              )}
+        <div className={styles.Alice} >
+          <AliceCarousel
+            responsive={responsive}
+            items={slides}
+            //disableButtonsControls
+            >
+              <div className={styles.aliceSlide}>
+            {slides}
             </div>
-          ))}
-              </Carousel>
+          </AliceCarousel>
+        </div> 
+
+      
 
         <div className={styles.admButtons}>
           <button onClick={roomButtonClick}>

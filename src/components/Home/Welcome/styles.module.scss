@@ -100,102 +100,7 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      
-      .navbar{
-        height: 7em;
-        width: 0px; 
-        margin-top: -15px;
-        margin-right: 30px;  
-        pointer-events: visible;
-        cursor: pointer;
-        color: #fff;
-      } 
-        
-      .sidebar{
-      display: block;
-      position: absolute;
-      top: 330px;
-      right: 125px;
-      width: 250px; 
-      max-height: 352px;
-      margin-left: -1px; 
-      padding: 1rem 0; 
-      display: flex;
-      flex-direction: column;  
-      justify-content: center;
-      align-items: center; 
-      background-color: #000;
-      border: 1px solid #5b5b5b;
-      border-radius: 10px;
-      transition: height 0.3s ease; 
-      z-index: 3; 
-      overflow: auto; 
-      
-      button{
-        width: 70px;
-        height: 30px;
-        margin-left: .5rem;
-        padding-top: .2rem;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-evenly;
-        background: #000;
-        font-size: 1.2rem;
-        color: #fff;
-        border: 0;
-       
-        &:hover{
-          background: none;
-        }
 
-        .iconsPlay{
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          font-size: 30px;
-          color: #23d823;
-          margin-bottom: .3rem;
-         }
-        
-         .iconsStop{
-          display: flex;          
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          font-size: 30px;
-          color: red;
-          margin-bottom: .3rem;
-         }
-      }
-      }
-    
-      .sidebar span{
-      color: #fff;  
-      padding: 1rem 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      font-weight: 500;
-      } 
-    
-      .sidebar::-webkit-scrollbar {
-        width: 10px; 
-        border-radius: 5px;
-       
-      }
-      
-      .sidebar::-webkit-scrollbar-thumb {
-        background-color: #888; 
-        border-radius: 10px; 
-      }
-      
-      .sidebar::-webkit-scrollbar-track {
-        display: none;
-      }
-      
       .transmitionHost {
         width: 70%; 
         height: 380px;
@@ -210,71 +115,119 @@
           border: 1px solid #5b5b5b;
           border-radius: 10px;
         }
-      } 
 
-  }  
-   
-    .customCarousel {
-      width: 400px; 
-      height: 130px;
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-     
-      .carouselItem{
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        
-      }
-     
-      .videoPeers {
-        width: 70%;
-        height: 100%;
-        margin: 0 33px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-       // border: 1px solid #5b5b5b;
-        border-radius: 10px;
-      }
-    }  
-
-    .Alice{
-      width: 600px;
-      height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 50px;
-      background: #23d823;
-
-      .slickItem{
-        width: 30%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-evenly;
-        background: #a53f3f;
-
-        .videoPeers{
-          width: 80%;
-          height: 80%; 
-          object-fit: cover;
-          margin: 0 1rem;        
+        .videoHostPlay {
+          width: 100%;
+          height: 100%;
           display: flex;
           align-items: center;
-          justify-content: space-evenly;
-          background: blue;
+          justify-content: center;
+          background:  #181a20;
+          border: 1px solid #5b5b5b;
+          border-radius: 10px;
 
+          .cameraOff{
+            width: 80px;
+            height: 80px;
+            color: red;
+          }          
         }
-      }
-    }
-
-     
+      } 
+      
+      .navbar{
+        width: 30%;
+        height: 380px;       
+        pointer-events: visible;
+        cursor: pointer;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: flex-start;
+        
+        .sidebar{
+          width: 260px; 
+          max-height: 352px;
+          padding: 1rem 0; 
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background-color: #000000;
+          border: 1px solid #5b5b5b;
+          border-radius: 10px;
+          transition: height 0.3s ease; 
+          z-index: 3; 
+          overflow: auto; 
+  
+          span{
+            color: #fff;  
+            padding: 1rem 0;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 500;
+            } 
+          
+            .sidebar::-webkit-scrollbar {
+              width: 10px; 
+              border-radius: 5px;
+             
+            }
+            
+            .sidebar::-webkit-scrollbar-thumb {
+              background-color: #888; 
+              border-radius: 10px; 
+            }
+            
+            .sidebar::-webkit-scrollbar-track {
+              display: none;
+            }
+        
+          button{
+            width: 70px;
+            height: 30px;
+            margin-left: .5rem;
+            padding-top: .2rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-evenly;
+            background: #000;
+            font-size: 1.2rem;
+            color: #fff;
+            border: 0;
+          
+            &:hover{
+              background: none;
+            }
+  
+            .iconsPlay{
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: center;
+              font-size: 30px;
+              color: #23d823;
+              margin-bottom: .3rem;
+            }
+            
+            .iconsStop{
+              display: flex;          
+              flex-direction: row;
+              align-items: center;
+              justify-content: center;
+              font-size: 30px;
+              color: red;
+              margin-bottom: .3rem;
+            }
+          }
+        }
+      }      
+    } 
+    
     .admButtons{
       width: 100%;
       height: 100px;
@@ -329,5 +282,39 @@
 
       }
     }
+
+    .Alice{
+      width: 70%;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 30px;
+     
+      .aliceSlide{
+        display: flex;
+      }
+
+      .slickItem{
+        width: 80%;
+        height: 300px;
+        padding: 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+       
+        .videoPeers{
+          width: 80%;
+          height: 80%; 
+          object-fit: cover;
+          margin: 0 1rem;  
+          border-radius: 10px;      
+          display: flex;
+          align-items: center;
+          justify-content: space-evenly;
+         
+        }
+      }
+    }    
   }  
 }
