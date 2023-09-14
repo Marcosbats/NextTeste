@@ -59,7 +59,7 @@ export function Auditorio(){
   };
 
   const slides = [
-    me.role === 'coHost' ? (
+    me.role === 'coHost' && (
       <div key="me" className={styles.slickItem}>
         <video
           ref={videoRef}
@@ -75,8 +75,8 @@ export function Auditorio(){
           className={styles.audioElement}
         />
       </div>
-    ) : null,
-    ...Object.values(peers)
+    ),
+    Object.values(peers)
       .filter((peer) => peer.role === 'coHost')
       .map((peer) => (
         <div key={peer.peerId} className={styles.slickItem}>
@@ -94,7 +94,7 @@ export function Auditorio(){
             />
           )}
         </div>
-      )),
+      ))
   ];
   
   // Remove elementos nulos (caso `me.role !== 'coHost'`)

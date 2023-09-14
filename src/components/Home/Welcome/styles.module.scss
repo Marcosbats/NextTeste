@@ -66,8 +66,7 @@
     .Icon{
       margin: 0 .5rem;
       font-size: 18px;
-    }
-    
+    }    
   }
 
   .callContainer{
@@ -299,7 +298,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #23d823;   
+     // background: #23d823;   
 
       .slickItem{
         width: 100%;
@@ -309,7 +308,7 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        background: #a90629;
+       // background: #a90629;
 
         .videoPeers{
           width: 200px;
