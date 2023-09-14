@@ -9,7 +9,7 @@ import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUser, LuUsers } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash } from "react-icons/hi2";
-import { BsMic, BsMicMute, BsTelephoneX } from "react-icons/bs";
+import { BsFillCameraVideoOffFill, BsMic, BsMicMute, BsTelephoneX } from "react-icons/bs";
 import { ModalAuditorio } from '../../components/Genericos/Modal';
 import { createRoom } from '../../pages/api/roomId';
 import { useAuthContext } from '../../contexts/auth';
@@ -58,43 +58,48 @@ export function Auditorio(){
     768: { items: 3 }, // Mostrar 2 slides em telas maiores que 768px
   };
 
-  const slides = Object.values(peers)
-  .filter((peer) => peer.role === 'coHost')
-  .map((peer) => (
-    <div key={peer.peerId} className={styles.slickItem}>
-      {peer.cam && (
-        <Video
+  const slides = [
+    me.role === 'coHost' ? (
+      <div key="me" className={styles.slickItem}>
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
           className={styles.videoPeers}
-          peerId={peer.peerId}
-          track={peer.cam!}
         />
-      )}
-      {peer.mic && (
-        <Audio
-          peerId={peer.peerId}
-          track={peer.mic!}
+        <audio
+          ref={audioRef}
+          autoPlay
+          playsInline
+          className={styles.audioElement}
         />
-      )}
-    </div>
-  ))
-  me.role === 'coHost' ? (
-    <div className={styles.slickItem}>
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        className={styles.videoPeers}
-      />
-      <audio
-        ref={audioRef}
-        autoPlay
-        playsInline
-        className={styles.audioElement}
-      />
-    </div>
-  );
+      </div>
+    ) : null,
+    ...Object.values(peers)
+      .filter((peer) => peer.role === 'coHost')
+      .map((peer) => (
+        <div key={peer.peerId} className={styles.slickItem}>
+          {peer.cam && (
+            <Video
+              className={styles.videoPeers}
+              peerId={peer.peerId}
+              track={peer.cam!}
+            />
+          )}
+          {peer.mic && (
+            <Audio
+              peerId={peer.peerId}
+              track={peer.mic!}
+            />
+          )}
+        </div>
+      )),
+  ];
   
+  // Remove elementos nulos (caso `me.role !== 'coHost'`)
+  const filteredSlides = slides.filter((slide) => slide !== null);
+
   let roomIdInitialized = false;
 
   async function initializeRoomId() {
@@ -243,13 +248,16 @@ export function Auditorio(){
             .filter((peer) => peer.role === 'host')
             .map((peer) => (
               <div key={peer.peerId} className={styles.transmitionHost} >
-                {peer.cam && (
+                {peer.cam ?(
                   <Video
                     className={styles.videoHost}
                     peerId={peer.peerId}
                     track={peer.cam!}
                   />
-                )}
+                ) : (
+                <div className={styles.videoHostPlay}>
+                  <BsFillCameraVideoOffFill className={styles.cameraOff} />
+                </div>)}
                 {peer.mic && (
                   <Audio
                     peerId={peer.peerId}
@@ -273,19 +281,9 @@ export function Auditorio(){
             </div>
           )}
         </div>
-        <div className={styles.Alice} >
-          <AliceCarousel
-            responsive={responsive}
-            items={slides}
-            //disableButtonsControls
-            >
-              <div className={styles.aliceSlide}>
-            {slides}
-            </div>
-          </AliceCarousel>
-        </div> 
-
-      
+        <div className={styles.statusMic}>
+          <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
+        </div>     
 
         <div className={styles.admButtons}>
           <button onClick={roomButtonClick}>
@@ -304,7 +302,19 @@ export function Auditorio(){
             </>
           ) 
           } 
-        </div>                     
+        </div> 
+        <div className={styles.Alice}>
+        {slides.length > 0 && (
+          <AliceCarousel
+          responsive={responsive} 
+          items={slides}
+         // disableButtonsControls
+          disableDotsControls
+          >
+           {slides}
+         </AliceCarousel>
+        )}
+      </div>                     
       </div>
     </div>    
   );

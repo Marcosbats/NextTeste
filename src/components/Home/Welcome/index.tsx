@@ -29,7 +29,7 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, toggleSidebar }) => {
   const navbarClassName = isOpen ? 'navbar' : 'navbar hidden';
 
   return(
-    <div className={navbarClassName}>
+    <div className={styles.navbarClassName}>
     <Hamburger toggled={isOpen}
     size={parseInt("25")} rounded toggle={toggleSidebar} />
     </div>   
@@ -278,6 +278,9 @@ export function Welcome(){
               </div>
             )}
           </div>            
+        </div>
+        <div className={styles.statusMic}>
+          <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
         </div>  
          
         <div className={styles.admButtons}>          
@@ -296,20 +299,22 @@ export function Welcome(){
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
           </Link>
-          <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
-        
+          
+                        
+          
         </div>
-        <div className={styles.Alice} >
+        <div className={styles.Alice}>
+        {slides.length > 0 && (
           <AliceCarousel
-            responsive={responsive}
-            items={slides}
-            //disableButtonsControls
-            >
-              <div className={styles.aliceSlide}>
+           responsive={responsive} 
+           items={slides}
+          // disableButtonsControls
+           disableDotsControls
+           >
             {slides}
-            </div>
           </AliceCarousel>
-        </div>       
+        )}
+      </div>      
       </div>                
     </div>    
   );
