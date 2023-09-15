@@ -54,8 +54,9 @@ export function Welcome(){
   const audioRef = useRef<HTMLAudioElement | null>(null);  
   const { setId } : any = useAuthContext();
   const responsive = {
-    0: { items: 1 }, // Mostrar 1 slide em telas menores que 768px
-    768: { items: 3 }, // Mostrar 2 slides em telas maiores que 768px
+    0: { items: 1 }, 
+    450: { items: 2 }, // Mostrar 2 slides em telas maiores que 450px
+    950: { items: 3 }, // Mostrar 3 slides em telas maiores que 950px
   };
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
@@ -107,7 +108,7 @@ export function Welcome(){
         endRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');        
         //initializeRoomId();
-        joinLobby('xhl-nhth-yso');
+        joinLobby('ykb-xkcm-muz');
         setAudioFunction('play');
         setVideoFunction('play');
     }
@@ -207,7 +208,7 @@ export function Welcome(){
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
     //initializeRoomId(); 
-    joinLobby('xhl-nhth-yso');
+    joinLobby('ykb-xkcm-muz');
   
   }, []);
 
@@ -279,9 +280,7 @@ export function Welcome(){
             )}
           </div>            
         </div>
-        <div className={styles.statusMic}>
-          <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
-        </div>  
+         
          
         <div className={styles.admButtons}>          
           <button onClick={roomButtonClick}>
@@ -299,7 +298,9 @@ export function Welcome(){
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
           </Link>
-          
+          <div className={styles.statusMic}>
+          <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
+        </div>
                         
           
         </div>
@@ -310,9 +311,8 @@ export function Welcome(){
            items={slides}
           // disableButtonsControls
            disableDotsControls
-           >
-            {slides}
-          </AliceCarousel>
+           />
+            
         )}
       </div>      
       </div>                

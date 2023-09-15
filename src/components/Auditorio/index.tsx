@@ -27,7 +27,7 @@ const Navbar: React.FC<NavbarProps> = ({ isOpen, toggleSidebar }) => {
 const navbarClassName = isOpen ? 'navbar' : 'navbar hidden';
 
   return(
-    <div className={navbarClassName}>
+    <div className={styles.navbarClassName}>
       <Hamburger toggled={isOpen}
       size={parseInt("25")} rounded toggle={toggleSidebar} />
     </div>   
@@ -54,13 +54,14 @@ export function Auditorio(){
   const { id } : any = useAuthContext();
   console.log('ID acessado na página Auditorio:', id);
   const responsive = {
-    0: { items: 1 }, // Mostrar 1 slide em telas menores que 768px
-    768: { items: 3 }, // Mostrar 2 slides em telas maiores que 768px
+    0: { items: 1 }, 
+    450: { items: 2 }, // Mostrar 2 slides em telas maiores que 450px
+    950: { items: 3 }, // Mostrar 3 slides em telas maiores que 950px
   };
 
   const slides = [
     me.role === 'coHost' && (
-      <div key="me" className={styles.slickItem}>
+      <div key="me" className={styles.meItem}>
         <video
           ref={videoRef}
           autoPlay
@@ -76,7 +77,7 @@ export function Auditorio(){
         />
       </div>
     ),
-    Object.values(peers)
+    ...Object.values(peers)
       .filter((peer) => peer.role === 'coHost')
       .map((peer) => (
         <div key={peer.peerId} className={styles.slickItem}>
@@ -137,7 +138,7 @@ export function Auditorio(){
         leaveRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
         //initializeRoomId();
-        joinLobby('xhl-nhth-yso');
+        joinLobby('ykb-xkcm-muz');
         setAudioFunction('play');
         setVideoFunction('play');
     }
@@ -223,7 +224,7 @@ export function Auditorio(){
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
     //initializeRoomId();     
-    joinLobby('xhl-nhth-yso');
+    joinLobby('ykb-xkcm-muz');
   }, []);
 
   return (
@@ -270,16 +271,18 @@ export function Auditorio(){
           </div> 
           <div className={styles.navbar}>
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} />
-          </div>
-          {isOpen && (
-            <div className={styles.sidebar}>
-              {Object.values(peers)
-                .filter((peer) => peer.displayName) 
-                .map((peer, index) => (
-                  <span key={index}><LuUser /> {(peer.role === 'host') ? ("ANFITRIÃO") : (peer.displayName)}</span>
-                ))}
-            </div>
-          )}
+              {isOpen && (
+              <div className={styles.sidebar}>
+                <div className={styles.sub}>
+                {Object.values(peers)
+                  .filter((peer) => peer.displayName) 
+                  .map((peer, index) => (
+                    <span key={index}><LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)}</span>
+                  ))}
+                  </div>
+              </div>
+            )}
+          </div>         
         </div>
         <div className={styles.statusMic}>
           <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
