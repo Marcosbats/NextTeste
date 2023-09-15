@@ -58,17 +58,21 @@ export function Welcome(){
     450: { items: 2 }, // Mostrar 2 slides em telas maiores que 450px
     950: { items: 3 }, // Mostrar 3 slides em telas maiores que 950px
   };
+
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
   .map((peer) => (
     <div key={peer.peerId} className={styles.slickItem}>
-      {peer.cam && (
-        <Video
-          className={styles.videoPeers}
-          peerId={peer.peerId}
-          track={peer.cam!}
-        />
-      )}
+      {peer.cam ?(
+          <Video
+            className={styles.videoPeers}
+            peerId={peer.peerId}
+            track={peer.cam!}
+          />
+        ) : (
+        <div className={styles.videoHostPlay}>
+          <BsFillCameraVideoOffFill className={styles.cameraOff} />
+        </div>)}
       {peer.mic && (
         <Audio
           peerId={peer.peerId}
@@ -225,11 +229,11 @@ export function Welcome(){
       <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>        
           <div className={styles.transmitionHost}>
-          {videoFunction === 'play' ? (
-              <div className={styles.videoHostPlay}>
-                <BsFillCameraVideoOffFill className={styles.cameraOff} />
-              </div>
-            ) : (
+            {videoFunction === 'play' ? (
+                <div className={styles.videoHostPlay}>
+                  <BsFillCameraVideoOffFill className={styles.cameraOff} />
+                </div>
+              ) : (
               <div className={styles.videoHost}>
                 <video
                   ref={videoRef}
@@ -281,7 +285,6 @@ export function Welcome(){
           </div>            
         </div>
          
-         
         <div className={styles.admButtons}>          
           <button onClick={roomButtonClick}>
             {buttonLabelRoom()}
@@ -299,22 +302,19 @@ export function Welcome(){
           ENTRAR NO EVENTO
           </Link>
           <div className={styles.statusMic}>
-          <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
+            <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
+          </div>                       
         </div>
-                        
-          
-        </div>
+
         <div className={styles.Alice}>
-        {slides.length > 0 && (
-          <AliceCarousel
-           responsive={responsive} 
-           items={slides}
-          // disableButtonsControls
-           disableDotsControls
-           />
-            
-        )}
-      </div>      
+          {slides.length > 0 && (
+            <AliceCarousel
+              responsive={responsive} 
+              items={slides}
+              disableDotsControls
+            />              
+          )}
+        </div>      
       </div>                
     </div>    
   );

@@ -60,34 +60,21 @@ export function Auditorio(){
   };
 
   const slides = [
-    me.role === 'coHost' && (
-      <div key="me" className={styles.meItem}>
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className={styles.videoPeers}
-        />
-        <audio
-          ref={audioRef}
-          autoPlay
-          playsInline
-          className={styles.audioElement}
-        />
-      </div>
-    ),
+   
     ...Object.values(peers)
       .filter((peer) => peer.role === 'coHost')
       .map((peer) => (
         <div key={peer.peerId} className={styles.slickItem}>
-          {peer.cam && (
+          {peer.cam ?(
             <Video
               className={styles.videoPeers}
               peerId={peer.peerId}
               track={peer.cam!}
             />
-          )}
+          ) : (
+          <div className={styles.videoHostPlay}>
+            <BsFillCameraVideoOffFill className={styles.cameraOff} />
+          </div>)}
           {peer.mic && (
             <Audio
               peerId={peer.peerId}
@@ -95,12 +82,26 @@ export function Auditorio(){
             />
           )}
         </div>
-      ))
+      )),
+      me.role === 'coHost' && (
+        <div key="me" className={styles.meItem}>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={styles.videoPeers}
+          />
+          <audio
+            ref={audioRef}
+            autoPlay
+            playsInline
+            className={styles.audioElement}
+          />
+        </div>
+      )
   ];
   
-  // Remove elementos nulos (caso `me.role !== 'coHost'`)
-  const filteredSlides = slides.filter((slide) => slide !== null);
-
   let roomIdInitialized = false;
 
   async function initializeRoomId() {
@@ -240,7 +241,6 @@ export function Auditorio(){
       </div>
       <div className={styles.callContainer}>
         <h1>10ª Call da Comunidade</h1> 
-        <p>Aqui: {id}</p>          
       </div>
       <div className={styles.auditorioContainer}>
         <div className={styles.settingsContainer}>
@@ -271,22 +271,22 @@ export function Auditorio(){
           </div> 
           <div className={styles.navbar}>
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} />
-              {isOpen && (
-              <div className={styles.sidebar}>
-                <div className={styles.sub}>
+            {isOpen && (
+            <div className={styles.sidebar}>
+              <div className={styles.sub}>
                 {Object.values(peers)
                   .filter((peer) => peer.displayName) 
                   .map((peer, index) => (
                     <span key={index}><LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)}</span>
                   ))}
-                  </div>
               </div>
+            </div>
             )}
           </div>         
         </div>
         <div className={styles.statusMic}>
-          <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
-        </div>     
+          <span>{ me.role === 'coHost' && audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
+        </div>    
 
         <div className={styles.admButtons}>
           <button onClick={roomButtonClick}>
@@ -303,21 +303,17 @@ export function Auditorio(){
                 {buttonLabelAudio()}
               </button> 
             </>
-          ) 
-          } 
+          )} 
         </div> 
         <div className={styles.Alice}>
-        {slides.length > 0 && (
-          <AliceCarousel
-          responsive={responsive} 
-          items={slides}
-         // disableButtonsControls
-          disableDotsControls
-          >
-           {slides}
-         </AliceCarousel>
-        )}
-      </div>                     
+          {slides.length > 0 && (
+            <AliceCarousel
+              responsive={responsive} 
+              items={slides}
+              disableDotsControls
+            />
+          )}
+        </div>                     
       </div>
     </div>    
   );
