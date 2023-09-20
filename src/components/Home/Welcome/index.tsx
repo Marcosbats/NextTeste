@@ -1,11 +1,10 @@
 import styles from  './styles.module.scss'
 import Link from 'next/link';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
 import { useDisplayName } from "@huddle01/react/app-utils";
-import { IPeer } from '@huddle01/react/dist/declarations/src/atoms/peers.atom';
-import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers, useAcl } from '@huddle01/react/hooks';
+import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl } from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
@@ -15,9 +14,12 @@ import { IoLogIn } from "react-icons/io5";
 import { RiSpeakFill } from "react-icons/ri";
 import { Loading } from '../../Genericos/Loading'
 import { createRoom } from '../../../pages/api/roomId';
-import { useAuthContext } from '../../../contexts/auth';
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
+import { ModalEndRoom } from '../../Genericos/ModalEndRoom';
+import { Slider } from '../../Carousel'
+import initializeFirebaseClient from '../../../services/firebaseConnection'
+import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
 
 //Hamburguer
 interface NavbarProps {
@@ -51,12 +53,53 @@ export function Welcome(){
   const [videoFunction, setVideoFunction] = useState('play');  
   const [audioFunction, setAudioFunction] = useState('play'); 
   const videoRef = useRef<HTMLVideoElement | null>(null); 
-  const audioRef = useRef<HTMLAudioElement | null>(null);  
-  const { setId } : any = useAuthContext();
+  const audioRef = useRef<HTMLAudioElement | null>(null);   
+  const [isModalOpen, setIsModalOpen] = useState(false);
+	const { db } = initializeFirebaseClient()
+
+  async function getNextRoomName() {
+    const querySnapshot = await getDocs(collection(db, 'auditorio'));
+    const roomNames = querySnapshot.docs.map((doc) => doc.id);
+  
+    const highestNumber = roomNames.reduce((max, roomName) => {
+      const match = roomName.match(/^Sala(\d+)$/);
+      if (match) {
+        const number = parseInt(match[1]);
+        return number > max ? number : max;
+      }
+      return max;
+    }, 0);
+  
+    const nextRoomNumber = highestNumber + 1;
+    return `Sala${nextRoomNumber}`;
+  }
+
+  async function createNewRoom() {
+     const roomName = await getNextRoomName();
+    
+      try {
+        const userBase = doc(db, "auditorio", roomName)
+        
+        const currentDate = new Date();
+        const roomId = sessionStorage.getItem('roomId');
+
+        const userData = {
+          name: "Call", 
+          date: currentDate,  
+          roomId: roomId,        
+
+        }
+        await setDoc(userBase, userData)
+        console.log('Documento criado com ID: ', userBase.id);
+      } catch (error) {
+        console.error('Erro ao criar documento: ', error);
+      }
+    }
+  
   const responsive = {
     0: { items: 1 }, 
-    450: { items: 2 }, // Mostrar 2 slides em telas maiores que 450px
-    950: { items: 3 }, // Mostrar 3 slides em telas maiores que 950px
+    450: { items: 2 }, 
+    950: { items: 3 },
   };
 
   const slides = Object.values(peers)
@@ -81,22 +124,21 @@ export function Welcome(){
       )}
     </div>
   ));
- 
-  let roomIdInitialized = false;
 
+ 
   async function initializeRoomId() {
-   
-    if (!roomIdInitialized) {
-      roomIdInitialized = true;
       
       const roomId = await createRoom();
-      setId(roomId);
       console.log('ID gerado:', roomId);  
       sessionStorage.setItem('roomId', roomId);
       joinLobby(roomId);      
-    }
+    
   } 
-  
+    
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   const handleLinkClick = () => { //hamburguer
     setOpen(false);
   }; 
@@ -105,19 +147,14 @@ export function Welcome(){
     if (roomState === 'LOBBY') {
       try {
         joinRoom();
+        createNewRoom();
       } catch (error) {
         console.error('Erro:', error);
       }
-    } else if (roomState === 'ROOM') { 
-        endRoom();
-        initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');        
-        //initializeRoomId();
-        joinLobby('ykb-xkcm-muz');
-        setAudioFunction('play');
-        setVideoFunction('play');
+    } else if (roomState === 'ROOM') {        
+        setIsModalOpen(true);
     }
   };
-
 
   const buttonLabelRoom = () => {
     if (roomState === 'INIT') {       
@@ -130,7 +167,7 @@ export function Welcome(){
              </> ;
     } else if (roomState === 'ROOM') {
       return <> <BsTelephoneX className={styles.iconsStop}/> 
-               Sair da Sala
+               Encerrar Sala
              </>; 
     }
   };  
@@ -211,16 +248,14 @@ export function Welcome(){
 
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    //initializeRoomId(); 
-    joinLobby('ykb-xkcm-muz');
-  
+    initializeRoomId();   
   }, []);
 
   return (
     <div className={styles.mainContainer}>   
       <div className={styles.statusContainer}>    
-        <button className={`${styles.btnStatus} ${videoFunction === 'stop' && audioFunction === 'stop' ? styles.greenButton : styles.redButton}`} />
-        <span>{videoFunction === 'stop' && audioFunction === 'stop'  ? ' Ao Vivo' : ' Em Breve'}</span>
+        <button className={`${styles.btnStatus} ${roomState === 'ROOM' ? styles.greenButton : styles.redButton}`} />
+        <span>{roomState === 'ROOM'  ? ' Ao Vivo' : ' Em Breve'}</span>
           <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
       </div>
       <div className={styles.callContainer}>
@@ -249,7 +284,10 @@ export function Welcome(){
                   className={styles.audioElement}
                 />
               </div>
-            )}          
+            )} 
+            <div className={styles.statusMic}>
+              <span>{audioFunction === 'play' ? 'Você está mutado' : '' }</span>
+            </div>         
           </div> 
           <div className={styles.navbar}>                
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} /> 
@@ -270,11 +308,11 @@ export function Welcome(){
                       }}>
                       {(peer.role === 'peer') ? 
                         <>
-                          <RiSpeakFill className={styles.iconsPlay} />
+                          <RiSpeakFill className={styles.iconsSpeakGreen} />
                         </> 
                         : 
                         <>
-                          <RiSpeakFill className={styles.iconsStop}/>
+                          <RiSpeakFill className={styles.iconsSpeakRed}/>
                         </>
                         } 
                     </button>
@@ -284,7 +322,17 @@ export function Welcome(){
             )}
           </div>            
         </div>
-         
+        {slides.length > 0 && (
+        <div className={styles.carouselContainer}>         
+          <AliceCarousel
+            responsive={responsive} 
+            items={slides}
+            disableDotsControls
+          >
+            <div className={styles.coHostCarousel}>{slides}</div> 
+          </AliceCarousel>
+        </div> 
+        )}          
         <div className={styles.admButtons}>          
           <button onClick={roomButtonClick}>
             {buttonLabelRoom()}
@@ -301,21 +349,12 @@ export function Welcome(){
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
           </Link>
-          <div className={styles.statusMic}>
-            <span>{audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
-          </div>                       
-        </div>
-
-        <div className={styles.Alice}>
-          {slides.length > 0 && (
-            <AliceCarousel
-              responsive={responsive} 
-              items={slides}
-              disableDotsControls
-            />              
-          )}
-        </div>      
-      </div>                
+        </div>  
+        {isModalOpen &&
+          <ModalEndRoom onClose={closeModal}  />  
+        }
+      </div>   
+        <Slider />             
     </div>    
   );
 };

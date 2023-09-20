@@ -41,7 +41,6 @@ export function ModalAuditorio({ onClose, onNameSubmit }: ModalProps) {
         setDisplayNameText('');
       }
        else {
-        // O nome é válido, execute a lógica de sucesso
         onNameSubmit(displayNameText);
         setDisplayName(displayNameText);
         onClose();

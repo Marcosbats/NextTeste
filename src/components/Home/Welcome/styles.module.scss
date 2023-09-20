@@ -95,7 +95,7 @@
     .settingsContainer{
       width: 100%;
       height: 100%;
-      padding: 1rem;
+      padding: 1rem 1rem 0;
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
@@ -104,12 +104,14 @@
         width: 70%; 
         height: 380px;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        background: red;
       
         .videoHost {
           width: 100%;
-          height: 100%;
+          height: 360px;
           object-fit: cover;
           border: 1px solid #5b5b5b;
           border-radius: 10px;
@@ -117,7 +119,7 @@
         
         .videoHostPlay {
           width: 100%;
-          height: 100%;
+          height: 360px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -126,10 +128,23 @@
           border-radius: 10px;
 
           .cameraOff{
-            width: 80px;
-            height: 80px;
-            color: red;
+            width: 50px;
+            height: 50px;
+            color: #fff;
           }          
+        }
+        .statusMic{
+          width: 100%;
+          height: 20px;
+         // margin: .3rem;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+         //background: blue;
+          span{
+            font-size: 1rem;
+            color: #fff;
+          }
         }
       } 
       
@@ -138,7 +153,6 @@
         height: 400px;
         margin-top: -15px;       
         pointer-events: visible;
-        cursor: pointer;
         color: #fff;
         display: flex;
         flex-direction: column;
@@ -202,31 +216,95 @@
           
             &:hover{
               background: none;
+            }            
+                        
+            .iconsStop{
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 27px;
+              font-weight: 500;
+              color: red;
+              margin-bottom: .3rem;
             }
   
-            .iconsPlay{
+            .iconsSpeakGreen{
               display: flex;
               flex-direction: row;
               align-items: center;
               justify-content: center;
-              font-size: 27px;
+              font-size: 25px;
               color: #23d823;
               margin-bottom: .3rem;
             }
             
-            .iconsStop{
+            .iconsSpeakRed{
               display: flex;          
               flex-direction: row;
               align-items: center;
               justify-content: center;
-              font-size: 27px;
+              font-size: 25px;
               color: red;
               margin-bottom: .3rem;
             }
           }
         }
       }      
-    } 
+    }
+    
+    .carouselContainer{
+      width: 70%;
+      max-height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: green;
+
+      .coHostCarousel{
+        width: 100%;
+        height: 100%;
+        padding: 0 .5rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        background: blue;
+        
+        .slickItem{
+          width: calc(100%/3);
+          height: 210px;
+          padding: 1rem 0;
+          margin-left: .5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: purple;
+        
+          .videoPeers{
+            width: 100%;
+            height: 100%; 
+            object-fit: cover;
+            border-radius: 10px;      
+          }
+        }
+    
+        .videoHostPlay {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background:  #181a20;
+          border: 1px solid #5b5b5b;
+          border-radius: 10px;
+    
+          .cameraOff{
+            width: 30px;
+            height: 30px;
+            color: #fff;
+          }          
+        }
+      }
+    }
     
     
     .admButtons{
@@ -235,7 +313,7 @@
       margin-left: .5rem;
       display: flex;
       align-items: flex-start;
-      justify-content: space-between;
+      justify-content: flex-start;
      
       button{
         width: 70px;
@@ -263,53 +341,16 @@
           display: flex;
           align-items: flex-start;
           justify-content: center;
-          color: #fff;
+         
+          span{
+            font-size: .8rem;
+            color: #fff;
+          }
          
         }
 
       
     }
-    
-    .Alice{
-      width: 70%;
-      max-height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      
-      .slickItem{
-        width: 210px;
-        height: 210px;
-        margin-left: 1rem;
-        padding: 1rem 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         
-        .videoPeers{
-          width: 100%;
-          height: 100%; 
-          object-fit: cover;
-          border-radius: 10px;     
-        }
-      }
-
-      .videoHostPlay {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background:  #181a20;
-        border: 1px solid #5b5b5b;
-        border-radius: 10px;
-
-        .cameraOff{
-          width: 30px;
-          height: 30px;
-          color: red;
-        }          
-      }
-    }    
   }  
 }

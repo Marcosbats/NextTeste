@@ -11,11 +11,12 @@ import { LuUser, LuUsers } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash } from "react-icons/hi2";
 import { BsFillCameraVideoOffFill, BsMic, BsMicMute, BsTelephoneX } from "react-icons/bs";
 import { ModalAuditorio } from '../../components/Genericos/Modal';
-import { createRoom } from '../../pages/api/roomId';
-import { useAuthContext } from '../../contexts/auth';
-
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
+import { ModalKickerPeer } from '../Genericos/ModalKickerPeer';
+import { Slider } from '../Carousel'
+import { collection, getDocs, limit, orderBy,query } from 'firebase/firestore';
+import initializeFirebaseClient from '@/src/services/firebaseConnection';
 
 //Hamburguer
 interface NavbarProps {
@@ -47,74 +48,119 @@ export function Auditorio(){
   const audioRef = useRef<HTMLAudioElement | null>(null);  
   const [isOpen, setOpen] = useState(false) // hamburguer
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState('');  
   const { setDisplayName, error: displayNameError } = useDisplayName();
   const { me } = useHuddle01();
   const { role, displayName } = me;
-  const { id } : any = useAuthContext();
-  console.log('ID acessado na página Auditorio:', id);
+  const { db } = initializeFirebaseClient();
+
+async function fetchLastRoomData() {
+  const collectionRef = collection(db, "auditorio");
+
+  // Consulta os documentos ordenados por um campo (por exemplo, data) em ordem decrescente
+   const resultado = query(collectionRef, orderBy("date", "desc"), limit(1));
+
+  try {
+    const querySnapshot = await getDocs(resultado);
+    if (!querySnapshot.empty) {
+      // Obtem o documento encontrado
+      const document = querySnapshot.docs[0].data();
+      return document;
+    } else {
+      console.log("Nenhum documento encontrado na coleção 'auditorio'.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Erro ao buscar o último documento: ", error);
+    return null;
+  }
+}
+
+// Função para renderizar os dados do documento na página
+async function renderLastRoomData() {
+  const lastRoomData = await fetchLastRoomData();
+
+  if (lastRoomData) {
+    // Acesse os campos do documento, por exemplo:
+    const roomName = lastRoomData.name;
+    const date = lastRoomData.date;
+    const roomId = lastRoomData.roomId;
+    joinLobby(roomId);
+    console.log("salaaa:",roomId)
+
+    // Renderize esses dados na sua página conforme necessário
+    // Por exemplo, você pode usar o DOM para inserir os dados em elementos HTML:
+    //document.getElementById("roomNameElement").textContent = roomName;
+    //document.getElementById("dateElement").textContent = date.toDate(); // Converte a data em um formato legível
+   // document.getElementById("roomIdElement").textContent = roomId;
+  }
+}
+
+
+
   const responsive = {
     0: { items: 1 }, 
     450: { items: 2 }, // Mostrar 2 slides em telas maiores que 450px
     950: { items: 3 }, // Mostrar 3 slides em telas maiores que 950px
   };
 
-  const slides = [
-   
-    ...Object.values(peers)
-      .filter((peer) => peer.role === 'coHost')
-      .map((peer) => (
-        <div key={peer.peerId} className={styles.slickItem}>
-          {peer.cam ?(
-            <Video
-              className={styles.videoPeers}
-              peerId={peer.peerId}
-              track={peer.cam!}
-            />
-          ) : (
-          <div className={styles.videoHostPlay}>
-            <BsFillCameraVideoOffFill className={styles.cameraOff} />
-          </div>)}
-          {peer.mic && (
-            <Audio
-              peerId={peer.peerId}
-              track={peer.mic!}
-            />
-          )}
-        </div>
-      )),
-      me.role === 'coHost' && (
-        <div key="me" className={styles.meItem}>
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className={styles.videoPeers}
-          />
-          <audio
-            ref={audioRef}
-            autoPlay
-            playsInline
-            className={styles.audioElement}
-          />
-        </div>
-      )
-  ];
-  
-  let roomIdInitialized = false;
+  const [idleCount, setIdleCount] = useState(0); // Contador de estados "IDLE"
 
-  async function initializeRoomId() {
-    if (!roomIdInitialized) {
-      roomIdInitialized = true;
-      
-      const roomId = await createRoom();
-
-      sessionStorage.setItem('roomId', roomId);
-      joinLobby(roomId);
-      console.log("ESSee: ", roomId, roomState);
+  useEffect(() => {
+    if (roomState === 'IDLE') {      
+      setIdleCount(idleCount + 1);
     }
-  }
+  }, [roomState]);
+  
+  const slides = Object.values(peers)
+  .filter((peer) => peer.role === 'coHost')
+  .map((peer) => (
+    <div key={peer.peerId} className={styles.slickItem}>
+      {peer.cam ? (
+        <Video
+          className={styles.videoPeers}
+          peerId={peer.peerId}
+          track={peer.cam!}
+        />
+      ) : (
+        <div className={styles.videoHostPlay}>
+          <BsFillCameraVideoOffFill className={styles.cameraOff} />
+        </div>
+      )}
+      {peer.mic && (
+        <Audio
+          peerId={peer.peerId}
+          track={peer.mic!}
+        />
+      )}
+    </div>
+  ));
+
+if (me.role === 'coHost') {
+  slides.push(
+    <div key="me" className={styles.meItem}>
+      {videoFunction === 'play' ? (
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className={styles.videoPeers}
+        />
+      ) : (
+        <div className={styles.videoHostPlay}>
+          <BsFillCameraVideoOffFill className={styles.cameraOff} />
+        </div>
+      )}
+      <audio
+        ref={audioRef}
+        autoPlay
+        playsInline
+        className={styles.audioElement}
+      />
+    </div>
+  );
+}
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -138,8 +184,7 @@ export function Auditorio(){
     } else if (roomState.valueOf() === 'ROOM') { 
         leaveRoom();
         initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        //initializeRoomId();
-        joinLobby('ykb-xkcm-muz');
+        joinLobby("bxr-bktj-nnj");
         setAudioFunction('play');
         setVideoFunction('play');
     }
@@ -151,7 +196,9 @@ export function Auditorio(){
     } else if (roomState === 'LOBBY') {
       return 'Entrar na Sala';
     } else if (roomState === 'ROOM') {
-      return <BsTelephoneX className={styles.iconsStop}/>;
+      return <> <BsTelephoneX className={styles.iconsStop}/> 
+                Sair da Sala
+             </>;
     }
   };  
   
@@ -224,8 +271,7 @@ export function Auditorio(){
 
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    //initializeRoomId();     
-    joinLobby('ykb-xkcm-muz');
+    renderLastRoomData();
   }, []);
 
   return (
@@ -234,12 +280,21 @@ export function Auditorio(){
         <>
           <ModalAuditorio onClose={closeModal} onNameSubmit={handleNameSubmit} />       
         </>
-      )} 
+      )}
+      {idleCount === 2 && (
+        <>
+          <ModalKickerPeer onClose={closeModal} />       
+        </>
+      )}     
+
       <div className={styles.statusContainer}>
         <button className={`${styles.btnStatus} ${roomState.valueOf() === 'ROOM' ? styles.greenButton : styles.redButton}`} />
         <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon} /> {Object.values(peers).length}
       </div>
       <div className={styles.callContainer}>
+        {roomState}
+        {me.role}
+        {idleCount}
         <h1>10ª Call da Comunidade</h1> 
       </div>
       <div className={styles.auditorioContainer}>
@@ -267,7 +322,10 @@ export function Auditorio(){
                 )}
               </div>
               ))
-            }    
+            } 
+            <div className={styles.statusMic}>
+              <span>{ me.role === 'coHost' && audioFunction === 'play' ? 'Você está mutado' : '' }</span>
+            </div>   
           </div> 
           <div className={styles.navbar}>
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} />
@@ -284,10 +342,18 @@ export function Auditorio(){
             )}
           </div>         
         </div>
-        <div className={styles.statusMic}>
-          <span>{ me.role === 'coHost' && audioFunction === 'play' ? 'VOCÊ ESTÁ MUTADO' : '' }</span>
-        </div>    
-
+        
+        {slides.length > 0 && (
+        <div className={styles.carouselContainer}>         
+          <AliceCarousel
+            responsive={responsive} 
+            items={slides}
+            disableDotsControls
+          >
+            <div className={styles.coHostCarousel}>{slides}</div> 
+          </AliceCarousel>
+        </div> 
+        )}
         <div className={styles.admButtons}>
           <button onClick={roomButtonClick}>
             {buttonLabelRoom()}
@@ -304,16 +370,8 @@ export function Auditorio(){
               </button> 
             </>
           )} 
-        </div> 
-        <div className={styles.Alice}>
-          {slides.length > 0 && (
-            <AliceCarousel
-              responsive={responsive} 
-              items={slides}
-              disableDotsControls
-            />
-          )}
-        </div>                     
+        </div>  
+        <Slider />                   
       </div>
     </div>    
   );
