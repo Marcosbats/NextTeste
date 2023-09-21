@@ -10,7 +10,7 @@ import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import { BsFillCameraVideoOffFill } from 'react-icons/bs';
 
-export function Slider(eventCount :number){
+export function Slider(){
   const { peers } = usePeers();  
   const { joinLobby } = useLobby(); 
   const { joinRoom } = useRoom();   

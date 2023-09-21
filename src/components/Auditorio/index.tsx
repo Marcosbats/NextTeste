@@ -54,19 +54,6 @@ export function Auditorio(){
   const { role, displayName } = me;
   const { db } = initializeFirebaseClient();  
   const [idleCount, setIdleCount] = useState(0); // Contador de estados "IDLE"
-  const [eventCount, setEventCount] = useState(0); // Inicializa o estado com 0
-
-  // Função para lidar com o evento "room:peer-role-update"
-  const handlePeerRoleUpdate = () => {
-    // Atualize o estado incrementando o contador
-    setEventCount(eventCount + 1);
-  };
-
-  // Use o utilitário useEventListener para adicionar o ouvinte do evento
-  useEventListener("room:peer-role-update", handlePeerRoleUpdate);
-
-
-  
   
 
 async function fetchLastRoomData() {
@@ -358,7 +345,7 @@ if (me.role === 'coHost') {
             </>
           )} 
         </div>  
-        <Slider  eventCount={eventCount}/>                   
+        <Slider />                   
       </div>
     </div>    
   );
