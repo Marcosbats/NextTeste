@@ -19,24 +19,24 @@ import 'react-alice-carousel/lib/alice-carousel.css';
 import { ModalEndRoom } from '../../Genericos/ModalEndRoom';
 import { Slider } from '../../Carousel'
 import initializeFirebaseClient from '../../../services/firebaseConnection'
-import { addDoc, collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, increment, setDoc, updateDoc } from 'firebase/firestore'
 
-//Hamburguer
-interface NavbarProps {
-  isOpen: boolean;
-  toggleSidebar: () => void;
-}
+  //Hamburguer
+  interface NavbarProps {
+    isOpen: boolean;
+    toggleSidebar: () => void;
+  }
 
-const Navbar: React.FC<NavbarProps> = ({ isOpen, toggleSidebar }) => {
-  const navbarClassName = isOpen ? 'navbar' : 'navbar hidden';
+  const Navbar: React.FC<NavbarProps> = ({ isOpen, toggleSidebar }) => {
+    const navbarClassName = isOpen ? 'navbar' : 'navbar hidden';
 
-  return(
-    <div className={styles.navbarClassName}>
-    <Hamburger toggled={isOpen}
-    size={parseInt("25")} rounded toggle={toggleSidebar} />
-    </div>   
-  )
-}
+    return(
+      <div className={styles.navbarClassName}>
+      <Hamburger toggled={isOpen}
+      size={parseInt("25")} rounded toggle={toggleSidebar} />
+      </div>   
+    )
+  }
 
 export function Welcome(){ 
   const { initialize, roomState } = useHuddle01();
@@ -56,52 +56,7 @@ export function Welcome(){
   const audioRef = useRef<HTMLAudioElement | null>(null);   
   const [isModalOpen, setIsModalOpen] = useState(false);
 	const { db } = initializeFirebaseClient()
-  
 
-  async function getNextRoomName() {
-    const querySnapshot = await getDocs(collection(db, 'auditorio'));
-    const roomNames = querySnapshot.docs.map((doc) => doc.id);
-  
-    const highestNumber = roomNames.reduce((max, roomName) => {
-      const match = roomName.match(/^Sala(\d+)$/);
-      if (match) {
-        const number = parseInt(match[1]);
-        return number > max ? number : max;
-      }
-      return max;
-    }, 0);
-  
-    const nextRoomNumber = highestNumber + 1;
-    return `Sala ${nextRoomNumber}`;
-  }
-
-  async function createNewRoom() {
-     const roomName = await getNextRoomName();
-    
-      try {
-        const userBase = doc(db, "auditorio", roomName)
-        
-        const currentDate = new Date();
-        const roomId = sessionStorage.getItem('roomId');
-        const status = Object.values(peers)
-                        .filter((peer) => peer.role === 'coHost')
-        
-        const coHostIds = status.map((coHost) => coHost.peerId);
-
-        const userData = {
-          name: "Call", 
-          date: currentDate,  
-          roomId: roomId,   
-          coHost: coHostIds,     
-
-        }
-        await setDoc(userBase, userData)
-        console.log('Documento criado com ID: ', userBase.id);
-      } catch (error) {
-        console.error('Erro ao criar documento: ', error);
-      }
-    }
-  
   const responsive = {
     0: { items: 1 }, 
     450: { items: 2 }, 
@@ -129,18 +84,8 @@ export function Welcome(){
         />
       )}
     </div>
-  ));
-
- 
-  async function initializeRoomId() {
-      
-      const roomId = await createRoom();
-      console.log('ID gerado:', roomId);  
-      sessionStorage.setItem('roomId', roomId);
-      joinLobby(roomId);      
-    
-  } 
-    
+  )); 
+  
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -230,6 +175,62 @@ export function Welcome(){
     } 
   };
 
+  async function getNextRoomName() {
+    const querySnapshot = await getDocs(collection(db, 'auditorio'));
+    const roomNames = querySnapshot.docs.map((doc) => doc.id);
+  
+    const highestNumber = roomNames.reduce((max, roomName) => {
+      const match = roomName.match(/^Sala (\d+)$/);
+
+      if (match) {
+        const number = parseInt(match[1]);
+        return number > max ? number : max;
+      }
+      return max;
+      
+    }, 0);
+  
+    const nextRoomNumber = highestNumber + 1;
+    console.log('ultima sala: ', highestNumber);
+    return `Sala ${nextRoomNumber}`;
+  }
+
+  async function createNewRoom() {
+    const roomName = await getNextRoomName();
+  
+    try {
+      const userBase = doc(db, "auditorio", roomName)
+      
+      const currentDate = new Date();
+      const roomId = sessionStorage.getItem('roomId');
+      const status = Object.values(peers)
+                      .filter((peer) => peer.role === 'coHost')
+      
+      const coHostIds = status.map((coHost) => coHost.peerId);
+
+      const userData = {
+        name: "Call", 
+        date: currentDate,  
+        roomId: roomId,   
+        coHost: coHostIds,     
+        
+      }
+      await setDoc(userBase, userData)
+      console.log('Documento criado com ID: ', userBase.id);
+    } catch (error) {
+      console.error('Erro ao criar documento: ', error);
+    }
+  }
+ 
+  async function initializeRoomId() {
+      
+    const roomId = await createRoom();
+    console.log('ID gerado:', roomId);  
+    sessionStorage.setItem('roomId', roomId);
+    joinLobby(roomId);  
+    
+  }     
+  
   useEffect(() => {
     if (camStream) {
       produceVideo(camStream);
@@ -257,13 +258,12 @@ export function Welcome(){
     initializeRoomId();   
   }, []);
 
-
   return (
     <div className={styles.mainContainer}>   
       <div className={styles.statusContainer}>    
         <button className={`${styles.btnStatus} ${roomState === 'ROOM' ? styles.greenButton : styles.redButton}`} />
         <span>{roomState === 'ROOM'  ? ' Ao Vivo' : ' Em Breve'}</span>
-          <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
+        <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
       </div>
       <div className={styles.callContainer}>
        <h1>10ª Call da Comunidade</h1>        
@@ -335,6 +335,7 @@ export function Welcome(){
             responsive={responsive} 
             items={slides}
             disableDotsControls
+            disableButtonsControls
           > 
             <div className={styles.coHostCarousel}>{slides}</div> 
           </AliceCarousel>
@@ -356,9 +357,7 @@ export function Welcome(){
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
           </Link>
-          <Link href="/carousel" target='blank' passHref>
-          ENTRAR NO EVENTO
-          </Link>
+         
         </div>  
         {isModalOpen &&
           <ModalEndRoom onClose={closeModal}  />  

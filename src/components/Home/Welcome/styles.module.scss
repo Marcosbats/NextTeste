@@ -107,8 +107,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: red;
-      
+       
         .videoHost {
           width: 100%;
           height: 360px;
@@ -136,11 +135,9 @@
         .statusMic{
           width: 100%;
           height: 20px;
-         // margin: .3rem;
           display: flex;
           align-items: center;
           justify-content: flex-end;
-         //background: blue;
           span{
             font-size: 1rem;
             color: #fff;
@@ -258,8 +255,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: green;
-
+     
       .coHostCarousel{
         width: 100%;
         height: 100%;
@@ -267,7 +263,6 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        background: blue;
         
         .slickItem{
           width: calc(100%/3);
@@ -277,7 +272,6 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          background: purple;
         
           .videoPeers{
             width: 100%;
@@ -348,8 +342,6 @@
           }
          
         }
-
-      
     }
         
   }  

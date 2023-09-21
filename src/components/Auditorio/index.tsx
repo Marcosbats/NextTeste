@@ -53,63 +53,12 @@ export function Auditorio(){
   const { me } = useHuddle01();
   const { role, displayName } = me;
   const { db } = initializeFirebaseClient();  
-  const [idleCount, setIdleCount] = useState(0); // Contador de estados "IDLE"
-  
-
-async function fetchLastRoomData() {
-  const collectionRef = collection(db, "auditorio");
-
-  // Consulta os documentos ordenados por um campo (por exemplo, data) em ordem decrescente
-   const resultado = query(collectionRef, orderBy("date", "desc"), limit(1));
-
-  try {
-    const querySnapshot = await getDocs(resultado);
-    if (!querySnapshot.empty) {
-      // Obtem o documento encontrado
-      const document = querySnapshot.docs[0].data();
-      return document;
-    } else {
-      console.log("Nenhum documento encontrado na coleção 'auditorio'.");
-      return null;
-    }
-  } catch (error) {
-    console.error("Erro ao buscar o último documento: ", error);
-    return null;
-  }
-}
-
-// Função para renderizar os dados do documento na página
-async function renderLastRoomData() {
-  const lastRoomData = await fetchLastRoomData();
-
-  if (lastRoomData) {
-    // Acesse os campos do documento, por exemplo:
-    const roomName = lastRoomData.name;
-    const date = lastRoomData.date;
-    const roomId = lastRoomData.roomId;
-    joinLobby(roomId);
-    console.log("salaaa:",roomId)
-
-    // Renderize esses dados na sua página conforme necessário
-    // Por exemplo, você pode usar o DOM para inserir os dados em elementos HTML:
-    //document.getElementById("roomNameElement").textContent = roomName;
-    //document.getElementById("dateElement").textContent = date.toDate(); // Converte a data em um formato legível
-   // document.getElementById("roomIdElement").textContent = roomId;
-  }
-}
-
-
-useEffect(() => {
-  if (roomState === 'IDLE') {      
-    setIdleCount(idleCount + 1);
-  }
-}, [roomState]);
-
+  const [idleCount, setIdleCount] = useState(0); 
 
   const responsive = {
     0: { items: 1 }, 
-    450: { items: 2 }, // Mostrar 2 slides em telas maiores que 450px
-    950: { items: 3 }, // Mostrar 3 slides em telas maiores que 950px
+    450: { items: 2 }, 
+    950: { items: 3 }, 
   };
 
   const slides = Object.values(peers)
@@ -135,31 +84,31 @@ useEffect(() => {
     </div>
   ));
 
-if (me.role === 'coHost') {
-  slides.push(
-    <div key="me" className={styles.meItem}>
-      {videoFunction === 'play' ? (
-        <video
-          ref={videoRef}
+  if (me.role === 'coHost') {
+    slides.push(
+      <div key="me" className={styles.meItem}>
+        {videoFunction === 'play' ? (
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={styles.videoPeers}
+          />
+        ) : (
+          <div className={styles.videoHostPlay}>
+            <BsFillCameraVideoOffFill className={styles.cameraOff} />
+          </div>
+        )}
+        <audio
+          ref={audioRef}
           autoPlay
           playsInline
-          muted
-          className={styles.videoPeers}
+          className={styles.audioElement}
         />
-      ) : (
-        <div className={styles.videoHostPlay}>
-          <BsFillCameraVideoOffFill className={styles.cameraOff} />
-        </div>
-      )}
-      <audio
-        ref={audioRef}
-        autoPlay
-        playsInline
-        className={styles.audioElement}
-      />
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -172,17 +121,6 @@ if (me.role === 'coHost') {
   const handleLinkClick = () => { //hamburguer
     setOpen(false);
   }; 
-
-
-  useEffect(() => {
-    if (camStream && videoRef.current) { 
-      videoRef.current.srcObject = camStream;
-    }
-  
-    if (micStream && audioRef.current) { 
-      audioRef.current.srcObject = micStream;
-    }
-    }, [camStream, micStream]); 
 
   const videoButtonClick = () => {
     if (videoFunction === 'play') {
@@ -206,12 +144,6 @@ if (me.role === 'coHost') {
     } 
   };
 
-  useEffect(() => {
-    if (camStream) {
-      produceVideo(camStream); 
-    }
-  }, [camStream]);
-
   const audioButtonClick = () => {
     if (audioFunction === 'play') {
       try {
@@ -234,6 +166,65 @@ if (me.role === 'coHost') {
       return <BsMicMute className={styles.iconsStop}/>;
     } 
   };
+  
+
+  async function fetchLastRoomData() {
+    const collectionRef = collection(db, "auditorio");
+
+    // Consulta os documentos ordenados por um campo (por exemplo, data) em ordem decrescente
+    const resultado = query(collectionRef, orderBy("date", "desc"), limit(1));
+
+    try {
+      const querySnapshot = await getDocs(resultado);
+      if (!querySnapshot.empty) {
+        // Obtem o documento encontrado
+        const document = querySnapshot.docs[0].data();
+        return document;
+      } else {
+        console.log("Nenhum documento encontrado na coleção 'auditorio'.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Erro ao buscar o último documento: ", error);
+      return null;
+    }
+  }
+
+  async function renderLastRoomData() {
+    const lastRoomData = await fetchLastRoomData();
+
+    if (lastRoomData) {
+
+      const roomName = lastRoomData.name;
+      const date = lastRoomData.date;
+      const roomId = lastRoomData.roomId;
+      joinLobby(roomId);
+      console.log("salaaa:",roomId)
+
+    }
+  }
+
+  useEffect(() => {
+    if (roomState === 'IDLE') {      
+      setIdleCount(idleCount + 1);
+    }
+  }, [roomState]);
+
+  useEffect(() => {
+    if (camStream && videoRef.current) { 
+      videoRef.current.srcObject = camStream;
+    }
+  
+    if (micStream && audioRef.current) { 
+      audioRef.current.srcObject = micStream;
+    }
+    }, [camStream, micStream]);   
+
+  useEffect(() => {
+    if (camStream) {
+      produceVideo(camStream); 
+    }
+  }, [camStream]);  
 
   useEffect(() => {
     if (micStream) {
@@ -247,12 +238,14 @@ if (me.role === 'coHost') {
   }, []);
 
   return (
-    <div className={styles.mainContainer}>         
+    <div className={styles.mainContainer}> 
+
       {isModalOpen && (
         <>
           <ModalAuditorio onClose={closeModal} onNameSubmit={handleNameSubmit} />       
         </>
       )}
+
       {idleCount === 2 && (
         <>
           <ModalKickerPeer onClose={closeModal} />       
@@ -302,35 +295,37 @@ if (me.role === 'coHost') {
           <div className={styles.navbar}>
             <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} />
             {isOpen && (
-            <div className={styles.sidebar}>
-              <div className={styles.sub}>
-                {Object.values(peers)
-                  .filter((peer) => peer.displayName) 
-                  .map((peer, index) => (
-                    <span key={index}><LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)}</span>
-                  ))}
+              <div className={styles.sidebar}>
+                <div className={styles.sub}>
+                  {Object.values(peers)
+                    .filter((peer) => peer.displayName) 
+                    .map((peer, index) => (
+                      <span key={index}><LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)}</span>
+                    ))}
+                </div>
               </div>
-            </div>
             )}
           </div>         
         </div>
         
         {slides.length > 0 && (
-        <div className={styles.carouselContainer}>         
-          <AliceCarousel
-            responsive={responsive} 
-            items={slides}
-            disableDotsControls
-          >
-            <div className={styles.coHostCarousel}>{slides}</div> 
-          </AliceCarousel>
-        </div> 
+          <div className={styles.carouselContainer}>         
+            <AliceCarousel
+              responsive={responsive} 
+              items={slides}
+              disableDotsControls
+              disableButtonsControls
+            >
+              <div className={styles.coHostCarousel}>{slides}</div> 
+            </AliceCarousel>
+          </div> 
         )}
        
         <div className={styles.admButtons}>
           
-          <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}><BsTelephoneX className={styles.iconsStop}/> 
-                Sair da Sala
+          <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}>
+            <BsTelephoneX className={styles.iconsStop}/> 
+            Sair da Sala
           </Link>        
 
           { me.role === 'coHost' &&(
@@ -344,9 +339,10 @@ if (me.role === 'coHost') {
               </button> 
             </>
           )} 
-        </div>  
-        <Slider />                   
+        </div>                     
       </div>
+      
+      <Slider />
     </div>    
   );
 };
