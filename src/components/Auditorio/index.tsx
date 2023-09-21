@@ -333,7 +333,8 @@ const slides = Object.values(peers)
               </button> 
             </>
           )} 
-        </div>                     
+        </div>    
+        <Slider/>                 
       </div>
     </div>    
   );
