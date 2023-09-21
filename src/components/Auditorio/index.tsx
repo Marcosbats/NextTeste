@@ -335,8 +335,6 @@ const slides = Object.values(peers)
           )} 
         </div>                     
       </div>
-      
-      <Slider />
     </div>    
   );
 };

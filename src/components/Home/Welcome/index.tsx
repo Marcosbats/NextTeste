@@ -360,8 +360,7 @@ export function Welcome(){
         {isModalOpen &&
           <ModalEndRoom onClose={closeModal}  />  
         }
-      </div>   
-        <Slider/>             
+      </div>            
     </div>    
   );
 };

@@ -257,11 +257,10 @@
           width: 33%;
           height: 210px;
           padding: 1rem 0;
-          margin-left: 1rem;
+          margin-left: .5rem;
           display: flex;
           align-items: flex-end;
           justify-content: flex-end;
-          background: #23d823;
 
           .videoPeers{
             width: 100%;
@@ -279,7 +278,6 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          background: red;
         
           .videoPeers{
             width: 100%;
