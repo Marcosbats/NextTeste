@@ -13,7 +13,7 @@ export function ModalKickerPeer({ onClose }: ModalProps) {
   return (
     <main className={styles.modalContainer}>
       <div className={styles.modalContent}>
-        <p>Sua Conecção com a Sala foi Encerrada</p>            
+        <p>Sua Conexão com a Sala foi Encerrada</p>            
         <div className={styles.linkContainer}>
          <Link href='https://ibeed.xyz/comunidade' onClick={onClose}>IR PARA COMUNIDADE</Link>
         </div>

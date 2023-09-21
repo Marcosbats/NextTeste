@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
 import { useDisplayName } from "@huddle01/react/app-utils";
-import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl } from '@huddle01/react/hooks';
+import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener } from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
@@ -56,6 +56,7 @@ export function Welcome(){
   const audioRef = useRef<HTMLAudioElement | null>(null);   
   const [isModalOpen, setIsModalOpen] = useState(false);
 	const { db } = initializeFirebaseClient()
+  
 
   async function getNextRoomName() {
     const querySnapshot = await getDocs(collection(db, 'auditorio'));
@@ -71,7 +72,7 @@ export function Welcome(){
     }, 0);
   
     const nextRoomNumber = highestNumber + 1;
-    return `Sala${nextRoomNumber}`;
+    return `Sala ${nextRoomNumber}`;
   }
 
   async function createNewRoom() {
@@ -82,11 +83,16 @@ export function Welcome(){
         
         const currentDate = new Date();
         const roomId = sessionStorage.getItem('roomId');
+        const status = Object.values(peers)
+                        .filter((peer) => peer.role === 'coHost')
+        
+        const coHostIds = status.map((coHost) => coHost.peerId);
 
         const userData = {
           name: "Call", 
           date: currentDate,  
-          roomId: roomId,        
+          roomId: roomId,   
+          coHost: coHostIds,     
 
         }
         await setDoc(userBase, userData)
@@ -251,6 +257,7 @@ export function Welcome(){
     initializeRoomId();   
   }, []);
 
+
   return (
     <div className={styles.mainContainer}>   
       <div className={styles.statusContainer}>    
@@ -328,7 +335,7 @@ export function Welcome(){
             responsive={responsive} 
             items={slides}
             disableDotsControls
-          >
+          > 
             <div className={styles.coHostCarousel}>{slides}</div> 
           </AliceCarousel>
         </div> 
@@ -349,12 +356,15 @@ export function Welcome(){
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
           </Link>
+          <Link href="/carousel" target='blank' passHref>
+          ENTRAR NO EVENTO
+          </Link>
         </div>  
         {isModalOpen &&
           <ModalEndRoom onClose={closeModal}  />  
         }
       </div>   
-        <Slider />             
+        <Slider/>             
     </div>    
   );
 };

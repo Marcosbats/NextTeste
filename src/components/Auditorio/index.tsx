@@ -1,6 +1,6 @@
 import styles from  './styles.module.scss'
 import Link from 'next/link';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
 import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers, useAcl } from '@huddle01/react/hooks';
@@ -52,7 +52,22 @@ export function Auditorio(){
   const { setDisplayName, error: displayNameError } = useDisplayName();
   const { me } = useHuddle01();
   const { role, displayName } = me;
-  const { db } = initializeFirebaseClient();
+  const { db } = initializeFirebaseClient();  
+  const [idleCount, setIdleCount] = useState(0); // Contador de estados "IDLE"
+  const [eventCount, setEventCount] = useState(0); // Inicializa o estado com 0
+
+  // Função para lidar com o evento "room:peer-role-update"
+  const handlePeerRoleUpdate = () => {
+    // Atualize o estado incrementando o contador
+    setEventCount(eventCount + 1);
+  };
+
+  // Use o utilitário useEventListener para adicionar o ouvinte do evento
+  useEventListener("room:peer-role-update", handlePeerRoleUpdate);
+
+
+  
+  
 
 async function fetchLastRoomData() {
   const collectionRef = collection(db, "auditorio");
@@ -97,6 +112,12 @@ async function renderLastRoomData() {
 }
 
 
+useEffect(() => {
+  if (roomState === 'IDLE') {      
+    setIdleCount(idleCount + 1);
+  }
+}, [roomState]);
+
 
   const responsive = {
     0: { items: 1 }, 
@@ -104,29 +125,20 @@ async function renderLastRoomData() {
     950: { items: 3 }, // Mostrar 3 slides em telas maiores que 950px
   };
 
-  const [idleCount, setIdleCount] = useState(0); // Contador de estados "IDLE"
-
-  useEffect(() => {
-    if (roomState === 'IDLE') {      
-      setIdleCount(idleCount + 1);
-    }
-  }, [roomState]);
-  
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
   .map((peer) => (
     <div key={peer.peerId} className={styles.slickItem}>
-      {peer.cam ? (
-        <Video
-          className={styles.videoPeers}
-          peerId={peer.peerId}
-          track={peer.cam!}
-        />
-      ) : (
+      {peer.cam ?(
+          <Video
+            className={styles.videoPeers}
+            peerId={peer.peerId}
+            track={peer.cam!}
+          />
+        ) : (
         <div className={styles.videoHostPlay}>
           <BsFillCameraVideoOffFill className={styles.cameraOff} />
-        </div>
-      )}
+        </div>)}
       {peer.mic && (
         <Audio
           peerId={peer.peerId}
@@ -174,34 +186,7 @@ if (me.role === 'coHost') {
     setOpen(false);
   }; 
 
-  const roomButtonClick = () => {
-    if (roomState.valueOf() === 'LOBBY') {
-      try {
-        joinRoom();
-      } catch (error) {
-        console.error('Erro:', error);
-      }
-    } else if (roomState.valueOf() === 'ROOM') { 
-        leaveRoom();
-        initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-        joinLobby("bxr-bktj-nnj");
-        setAudioFunction('play');
-        setVideoFunction('play');
-    }
-  };
 
-  const buttonLabelRoom = () => {
-    if (roomState === 'INIT') {
-      return 'Conectando';
-    } else if (roomState === 'LOBBY') {
-      return 'Entrar na Sala';
-    } else if (roomState === 'ROOM') {
-      return <> <BsTelephoneX className={styles.iconsStop}/> 
-                Sair da Sala
-             </>;
-    }
-  };  
-  
   useEffect(() => {
     if (camStream && videoRef.current) { 
       videoRef.current.srcObject = camStream;
@@ -354,10 +339,12 @@ if (me.role === 'coHost') {
           </AliceCarousel>
         </div> 
         )}
+       
         <div className={styles.admButtons}>
-          <button onClick={roomButtonClick}>
-            {buttonLabelRoom()}
-          </button>
+          
+          <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}><BsTelephoneX className={styles.iconsStop}/> 
+                Sair da Sala
+          </Link>        
 
           { me.role === 'coHost' &&(
             <>
@@ -371,7 +358,7 @@ if (me.role === 'coHost') {
             </>
           )} 
         </div>  
-        <Slider />                   
+        <Slider  eventCount={eventCount}/>                   
       </div>
     </div>    
   );
