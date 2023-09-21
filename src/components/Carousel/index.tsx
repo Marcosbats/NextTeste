@@ -17,6 +17,8 @@ import 'react-alice-carousel/lib/alice-carousel.css';
 import initializeFirebaseClient from '../../services/firebaseConnection'
 import { addDoc, collection, doc, getDoc, getDocs, increment, setDoc, updateDoc } from 'firebase/firestore'
 
+ 
+
 export function Slider(){ 
   const { initialize, roomState } = useHuddle01();
   const { joinLobby } = useLobby(); 
@@ -64,7 +66,81 @@ export function Slider(){
       )}
     </div>
   )); 
- 
+  
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleLinkClick = () => { //hamburguer
+    setOpen(false);
+  }; 
+
+  const roomButtonClick = () => {
+    if (roomState === 'LOBBY') {
+      try {
+        joinRoom();
+        createNewRoom();
+      } catch (error) {
+        console.error('Erro:', error);
+      }
+    } else if (roomState === 'ROOM') {        
+        setIsModalOpen(true);
+    }
+  };
+
+
+  const videoButtonClick = () => {
+    if (videoFunction === 'play' && roomState === 'ROOM') {
+      try {
+        fetchVideoStream();
+        setVideoFunction('stop');     
+      } catch (error) {
+        console.error('Erro:', error);
+      }
+    } else if (videoFunction === 'stop') {      
+        stopVideoStream()
+        setVideoFunction('play');
+    } 
+  };
+  
+  const buttonLabelVideo = () => {
+    if (videoFunction === 'play') {
+      return <> <HiOutlineVideoCamera className={styles.iconsPlay} />
+      Iniciar Video
+      </>;
+    } else if (videoFunction === 'stop') {
+      return <> <HiOutlineVideoCameraSlash className={styles.iconsStop} />
+      Parar Video
+      </>;
+    } 
+  };
+  
+  const audioButtonClick = () => {
+    if (audioFunction === 'play' && roomState === 'ROOM') {
+      try {
+        fetchAudioStream();
+        setAudioFunction('stop');
+      } catch (error) {
+        console.error('Erro:', error);
+      }
+    } else if (audioFunction === 'stop') {
+      stopAudioStream()
+      setAudioFunction('play');
+    }
+  };
+  
+  const buttonLabelAudio = () => {
+    if (audioFunction === 'play') {
+      return <> <BsMic className={styles.iconsPlay}/> 
+      Iniciar Audio
+      </> ;
+    } else if (audioFunction === 'stop') {
+      return <> <BsMicMute className={styles.iconsStop}/>
+      Parar Audio
+      </>;
+    } 
+  };
+
   async function getNextRoomName() {
     const querySnapshot = await getDocs(collection(db, 'auditorio'));
     const roomNames = querySnapshot.docs.map((doc) => doc.id);
@@ -85,14 +161,6 @@ export function Slider(){
     return `Sala ${nextRoomNumber}`;
   }
 
-  async function incrementCoHost() {
-    const roomName =  await getNextRoomName(); // Substitua pelo nome da sala apropriada.
-    const userBase = doc(db, 'auditorio', roomName);
-  
-    // Atualize o campo 'coHost' no Firestore, incrementando em 1.
-    await updateDoc(userBase, { coHost: increment(1) });
-  }
-
   async function createNewRoom() {
     const roomName = await getNextRoomName();
   
@@ -101,26 +169,23 @@ export function Slider(){
       
       const currentDate = new Date();
       const roomId = sessionStorage.getItem('roomId');
-      const status = Object.values(peers)
-                      .filter((peer) => peer.role === 'coHost')
       
-      const coHostIds = status.map((coHost) => coHost.peerId);
-
       const userData = {
         name: "Call", 
         date: currentDate,  
         roomId: roomId,   
-        coHost: coHostIds,     
+        coHost: 0,     
         
       }
       await setDoc(userBase, userData)
       console.log('Documento criado com ID: ', userBase.id);
+      
+      return roomName;
     } catch (error) {
       console.error('Erro ao criar documento: ', error);
     }
   }
-     
-  
+ 
   useEffect(() => {
     if (camStream) {
       produceVideo(camStream);
@@ -148,8 +213,9 @@ export function Slider(){
   }, []);
 
   return (
-    <div className={styles.mainContainer}>              
-      <div className={styles.auditorioContainer}>   
+    <div className={styles.mainContainer}>   
+         
+      <div className={styles.auditorioContainer}>     
         
         {slides.length > 0 && (
         <div className={styles.carouselContainer}>         
@@ -163,7 +229,7 @@ export function Slider(){
           </AliceCarousel>
         </div> 
         )}          
-       
+        
       </div>                
     </div>    
   );

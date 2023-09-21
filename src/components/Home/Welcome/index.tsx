@@ -203,20 +203,18 @@ export function Welcome(){
       
       const currentDate = new Date();
       const roomId = sessionStorage.getItem('roomId');
-      const status = Object.values(peers)
-                      .filter((peer) => peer.role === 'coHost')
       
-      const coHostIds = status.map((coHost) => coHost.peerId);
-
       const userData = {
         name: "Call", 
         date: currentDate,  
         roomId: roomId,   
-        coHost: coHostIds,     
+        coHost: 0,     
         
       }
       await setDoc(userBase, userData)
       console.log('Documento criado com ID: ', userBase.id);
+      
+      return roomName;
     } catch (error) {
       console.error('Erro ao criar documento: ', error);
     }

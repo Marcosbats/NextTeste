@@ -60,8 +60,7 @@ export function Auditorio(){
     450: { items: 2 }, 
     950: { items: 3 }, 
   };
-
-  const slides = Object.values(peers)
+const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
   .map((peer) => (
     <div key={peer.peerId} className={styles.slickItem}>
@@ -83,11 +82,10 @@ export function Auditorio(){
       )}
     </div>
   ));
-
   if (me.role === 'coHost') {
     slides.push(
       <div key="me" className={styles.meItem}>
-        {videoFunction === 'play' ? (
+        {videoFunction === "stop" ? (        
           <video
             ref={videoRef}
             autoPlay
@@ -95,11 +93,10 @@ export function Auditorio(){
             muted
             className={styles.videoPeers}
           />
-        ) : (
+        ):(
           <div className={styles.videoHostPlay}>
-            <BsFillCameraVideoOffFill className={styles.cameraOff} />
-          </div>
-        )}
+           <BsFillCameraVideoOffFill className={styles.cameraOff} />
+          </div>)}       
         <audio
           ref={audioRef}
           autoPlay
@@ -109,7 +106,7 @@ export function Auditorio(){
       </div>
     );
   }
-
+ 
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -257,9 +254,6 @@ export function Auditorio(){
         <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon} /> {Object.values(peers).length}
       </div>
       <div className={styles.callContainer}>
-        {roomState}
-        {me.role}
-        {idleCount}
         <h1>10ª Call da Comunidade</h1> 
       </div>
       <div className={styles.auditorioContainer}>
