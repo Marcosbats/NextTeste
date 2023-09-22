@@ -1,6 +1,6 @@
 import styles from  './styles.module.scss'
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { createRef, useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
 import { useDisplayName } from "@huddle01/react/app-utils";
@@ -16,8 +16,8 @@ import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import initializeFirebaseClient from '../../services/firebaseConnection'
 import { addDoc, collection, doc, getDoc, getDocs, increment, setDoc, updateDoc } from 'firebase/firestore'
+import { FaChevronCircleLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
- 
 
 export function Slider(){ 
   const { initialize, roomState } = useHuddle01();
@@ -37,7 +37,19 @@ export function Slider(){
   const audioRef = useRef<HTMLAudioElement | null>(null);   
   const [isModalOpen, setIsModalOpen] = useState(false);
 	const { db } = initializeFirebaseClient()
+  const carouselRef = useRef<AliceCarousel | null>(null);
 
+  const nextSlide = () => {
+    if (carouselRef.current) {
+      carouselRef.current.slideNext();
+    }
+  };
+
+  const prevSlide = () => {
+    if (carouselRef.current) {
+      carouselRef.current.slidePrev();
+    }
+  };
   const responsive = {
     0: { items: 1 }, 
     450: { items: 2 }, 
@@ -47,99 +59,57 @@ export function Slider(){
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
   .map((peer) => (
-    <div key={peer.peerId} className={styles.slickItem}>
-      {peer.cam ?(
+    <div className={styles.coHostCarousel}> 
+      <div key={peer.peerId} className={styles.slickItem}>          
+        {peer.cam ? (
           <Video
             className={styles.videoPeers}
             peerId={peer.peerId}
             track={peer.cam!}
           />
         ) : (
-        <div className={styles.videoHostPlay}>
-          <BsFillCameraVideoOffFill className={styles.cameraOff} />
-        </div>)}
-      {peer.mic && (
-        <Audio
-          peerId={peer.peerId}
-          track={peer.mic!}
-        />
-      )}
+          <div className={styles.videoHostPlay}>
+            <BsFillCameraVideoOffFill className={styles.cameraOff} />
+          </div>
+        )}
+        {peer.mic && (
+          <Audio
+            peerId={peer.peerId}
+            track={peer.mic!}
+          />
+        )} 
+      </div>     
     </div>
-  )); 
+  ));
+  if (me.role === 'coHost') {
+    slides.push(      
+    <div className={styles.coHostCarousel}> 
+      <div key="me" className={styles.meItem}>
+        {videoFunction === "stop" ? (        
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={styles.videoPeers}
+          />
+        ):(
+          <div className={styles.videoHostPlay}>
+           <BsFillCameraVideoOffFill className={styles.cameraOff} />
+          </div>)}       
+        <audio
+          ref={audioRef}
+          autoPlay
+          playsInline
+          className={styles.audioElement}
+        />
+      </div>
+      </div>
+    );
+  }
+ 
+ 
   
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleLinkClick = () => { //hamburguer
-    setOpen(false);
-  }; 
-
-  const roomButtonClick = () => {
-    if (roomState === 'LOBBY') {
-      try {
-        joinRoom();
-        createNewRoom();
-      } catch (error) {
-        console.error('Erro:', error);
-      }
-    } else if (roomState === 'ROOM') {        
-        setIsModalOpen(true);
-    }
-  };
-
-
-  const videoButtonClick = () => {
-    if (videoFunction === 'play' && roomState === 'ROOM') {
-      try {
-        fetchVideoStream();
-        setVideoFunction('stop');     
-      } catch (error) {
-        console.error('Erro:', error);
-      }
-    } else if (videoFunction === 'stop') {      
-        stopVideoStream()
-        setVideoFunction('play');
-    } 
-  };
-  
-  const buttonLabelVideo = () => {
-    if (videoFunction === 'play') {
-      return <> <HiOutlineVideoCamera className={styles.iconsPlay} />
-      Iniciar Video
-      </>;
-    } else if (videoFunction === 'stop') {
-      return <> <HiOutlineVideoCameraSlash className={styles.iconsStop} />
-      Parar Video
-      </>;
-    } 
-  };
-  
-  const audioButtonClick = () => {
-    if (audioFunction === 'play' && roomState === 'ROOM') {
-      try {
-        fetchAudioStream();
-        setAudioFunction('stop');
-      } catch (error) {
-        console.error('Erro:', error);
-      }
-    } else if (audioFunction === 'stop') {
-      stopAudioStream()
-      setAudioFunction('play');
-    }
-  };
-  
-  const buttonLabelAudio = () => {
-    if (audioFunction === 'play') {
-      return <> <BsMic className={styles.iconsPlay}/> 
-      Iniciar Audio
-      </> ;
-    } else if (audioFunction === 'stop') {
-      return <> <BsMicMute className={styles.iconsStop}/>
-      Parar Audio
-      </>;
-    } 
-  };
 
   async function getNextRoomName() {
     const querySnapshot = await getDocs(collection(db, 'auditorio'));
@@ -215,20 +185,30 @@ export function Slider(){
   return (
     <div className={styles.mainContainer}>   
          
-      <div className={styles.auditorioContainer}>     
-        
-        {slides.length > 0 && (
-        <div className={styles.carouselContainer}>         
-          <AliceCarousel
+      <div className={styles.auditorioContainer}> 
+        <div className={styles.carouselContainer}>
+          <button onClick={prevSlide} className="custom-carousel-button">
+            <FaChevronLeft />
+          </button>
+           <AliceCarousel
+            autoWidth 
             responsive={responsive} 
             items={slides}
+            mouseTracking
             disableDotsControls
-            disableButtonsControls
+            disableButtonsControls          
+            ref={carouselRef}
           > 
-            <div className={styles.coHostCarousel}>{slides}</div> 
+            {slides} 
           </AliceCarousel>
-        </div> 
-        )}          
+          <button onClick={nextSlide} className="custom-carousel-button">
+            <FaChevronRight />
+          </button>
+        </div>    
+        
+       
+        
+              
         
       </div>                
     </div>    
