@@ -17,6 +17,7 @@ import { ModalKickerPeer } from '../Genericos/ModalKickerPeer';
 import { Slider } from '../Carousel'
 import { collection, getDocs, limit, orderBy,query } from 'firebase/firestore';
 import initializeFirebaseClient from '@/src/services/firebaseConnection';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 //Hamburguer
 interface NavbarProps {
@@ -54,6 +55,19 @@ export function Auditorio(){
   const { role, displayName } = me;
   const { db } = initializeFirebaseClient();  
   const [idleCount, setIdleCount] = useState(0); 
+  const carouselRef = useRef<AliceCarousel | null>(null);
+
+  const nextSlide = () => {
+    if (carouselRef.current) {
+      carouselRef.current.slideNext();
+    }
+  };
+
+  const prevSlide = () => {
+    if (carouselRef.current) {
+      carouselRef.current.slidePrev();
+    }
+  };
 
   const responsive = {
     0: { items: 1 }, 
@@ -61,51 +75,56 @@ export function Auditorio(){
     950: { items: 3 }, 
   };
 const slides = Object.values(peers)
-  .filter((peer) => peer.role === 'coHost')
-  .map((peer) => (
-    <div key={peer.peerId} className={styles.slickItem}>
-      {peer.cam ?(
-          <Video
-            className={styles.videoPeers}
-            peerId={peer.peerId}
-            track={peer.cam!}
-          />
-        ) : (
+.filter((peer) => peer.role === 'coHost')
+.map((peer) => (
+  <div className={styles.coHostCarousel}> 
+    <div key={peer.peerId} className={styles.slickItem}>          
+      {peer.cam ? (
+        <Video
+          className={styles.videoPeers}
+          peerId={peer.peerId}
+          track={peer.cam!}
+        />
+      ) : (
         <div className={styles.videoHostPlay}>
           <BsFillCameraVideoOffFill className={styles.cameraOff} />
-        </div>)}
+        </div>
+      )}
       {peer.mic && (
         <Audio
           peerId={peer.peerId}
           track={peer.mic!}
         />
-      )}
-    </div>
-  ));
-  if (me.role === 'coHost') {
-    slides.push(
-      <div key="me" className={styles.meItem}>
-        {videoFunction === "stop" ? (        
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className={styles.videoPeers}
-          />
-        ):(
-          <div className={styles.videoHostPlay}>
-           <BsFillCameraVideoOffFill className={styles.cameraOff} />
-          </div>)}       
-        <audio
-          ref={audioRef}
+      )} 
+    </div>     
+  </div>
+));
+if (me.role === 'coHost') {
+  slides.push(      
+  <div className={styles.coHostCarousel}> 
+    <div key="me" className={styles.meItem}>
+      {videoFunction === "stop" ? (        
+        <video
+          ref={videoRef}
           autoPlay
           playsInline
-          className={styles.audioElement}
+          muted
+          className={styles.videoPeers}
         />
-      </div>
-    );
-  }
+      ):(
+        <div className={styles.videoHostPlay}>
+         <BsFillCameraVideoOffFill className={styles.cameraOff} />
+        </div>)}       
+      <audio
+        ref={audioRef}
+        autoPlay
+        playsInline
+        className={styles.audioElement}
+      />
+    </div>
+    </div>
+  );
+}
  
   const closeModal = () => {
     setIsModalOpen(false);
@@ -303,15 +322,32 @@ const slides = Object.values(peers)
         </div>
         
         {slides.length > 0 && (
-          <div className={styles.carouselContainer}>         
-            <AliceCarousel
-              responsive={responsive} 
-              items={slides}
-              disableDotsControls
-              disableButtonsControls
-            >
-              <div className={styles.coHostCarousel}>{slides}</div> 
-            </AliceCarousel>
+          <div className={styles.carouselContent}> 
+          <button onClick={prevSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
+                <FaChevronLeft />
+              </button>
+            <div className={styles.carouselContainer}>
+              
+               <AliceCarousel
+                autoWidth 
+                responsive={responsive} 
+                items={slides}
+                mouseTracking
+                disableDotsControls
+                disableButtonsControls          
+                ref={carouselRef}
+              > 
+                {slides} 
+              </AliceCarousel>
+              
+            </div>    
+            <button onClick={nextSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
+                <FaChevronRight />
+              </button>
+           
+            
+                  
+            
           </div> 
         )}
        
@@ -333,8 +369,7 @@ const slides = Object.values(peers)
               </button> 
             </>
           )} 
-        </div>    
-        <Slider/>                 
+        </div>                    
       </div>
     </div>    
   );

@@ -20,6 +20,7 @@ import { ModalEndRoom } from '../../Genericos/ModalEndRoom';
 import { Slider } from '../../Carousel'
 import initializeFirebaseClient from '../../../services/firebaseConnection'
 import { addDoc, collection, doc, getDoc, getDocs, increment, setDoc, updateDoc } from 'firebase/firestore'
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
   //Hamburguer
   interface NavbarProps {
@@ -56,35 +57,50 @@ export function Welcome(){
   const audioRef = useRef<HTMLAudioElement | null>(null);   
   const [isModalOpen, setIsModalOpen] = useState(false);
 	const { db } = initializeFirebaseClient()
+  const carouselRef = useRef<AliceCarousel | null>(null);
+
+  const nextSlide = () => {
+    if (carouselRef.current) {
+      carouselRef.current.slideNext();
+    }
+  };
+
+  const prevSlide = () => {
+    if (carouselRef.current) {
+      carouselRef.current.slidePrev();
+    }
+  };
 
   const responsive = {
     0: { items: 1 }, 
     450: { items: 2 }, 
-    950: { items: 3 },
+    950: { items: 3 }, 
   };
-
-  const slides = Object.values(peers)
-  .filter((peer) => peer.role === 'coHost')
-  .map((peer) => (
-    <div key={peer.peerId} className={styles.slickItem}>
-      {peer.cam ?(
-          <Video
-            className={styles.videoPeers}
-            peerId={peer.peerId}
-            track={peer.cam!}
-          />
-        ) : (
+const slides = Object.values(peers)
+.filter((peer) => peer.role === 'coHost')
+.map((peer) => (
+  <div className={styles.coHostCarousel}> 
+    <div key={peer.peerId} className={styles.slickItem}>          
+      {peer.cam ? (
+        <Video
+          className={styles.videoPeers}
+          peerId={peer.peerId}
+          track={peer.cam!}
+        />
+      ) : (
         <div className={styles.videoHostPlay}>
           <BsFillCameraVideoOffFill className={styles.cameraOff} />
-        </div>)}
+        </div>
+      )}
       {peer.mic && (
         <Audio
           peerId={peer.peerId}
           track={peer.mic!}
         />
-      )}
-    </div>
-  )); 
+      )} 
+    </div>     
+  </div>
+)); 
   
   const closeModal = () => {
     setIsModalOpen(false);
@@ -328,17 +344,30 @@ export function Welcome(){
           </div>            
         </div>
         {slides.length > 0 && (
-        <div className={styles.carouselContainer}>         
-          <AliceCarousel
-            responsive={responsive} 
-            items={slides}
-            disableDotsControls
-            disableButtonsControls
-          > 
-            <div className={styles.coHostCarousel}>{slides}</div> 
-          </AliceCarousel>
-        </div> 
-        )}          
+          <div className={styles.carouselContent}> 
+            <button onClick={prevSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
+              <FaChevronLeft />
+            </button>
+          <div className={styles.carouselContainer}>
+            
+              <AliceCarousel
+              autoWidth 
+              responsive={responsive} 
+              items={slides}
+              mouseTracking
+              disableDotsControls
+              disableButtonsControls          
+              ref={carouselRef}
+            > 
+              {slides} 
+            </AliceCarousel>
+            
+          </div>    
+            <button onClick={nextSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
+              <FaChevronRight />
+            </button>      
+          </div> 
+        )}         
         <div className={styles.admButtons}>          
           <button onClick={roomButtonClick}>
             {buttonLabelRoom()}
