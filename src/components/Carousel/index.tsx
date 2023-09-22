@@ -186,10 +186,11 @@ export function Slider(){
     <div className={styles.mainContainer}>   
          
       <div className={styles.auditorioContainer}> 
-        <div className={styles.carouselContainer}>
-          <button onClick={prevSlide} className="custom-carousel-button">
+      <button onClick={prevSlide} className={styles.carouselButton}>
             <FaChevronLeft />
           </button>
+        <div className={styles.carouselContainer}>
+          
            <AliceCarousel
             autoWidth 
             responsive={responsive} 
@@ -201,11 +202,11 @@ export function Slider(){
           > 
             {slides} 
           </AliceCarousel>
-          <button onClick={nextSlide} className="custom-carousel-button">
+          
+        </div>    
+        <button onClick={nextSlide} className={styles.carouselButton}>
             <FaChevronRight />
           </button>
-        </div>    
-        
        
         
               

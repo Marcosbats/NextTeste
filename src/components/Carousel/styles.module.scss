@@ -1,28 +1,50 @@
 .mainContainer{
   width: 100%;
+  height: 500px;
   max-width: 1080px;
   padding: 2rem;
   margin: 2rem;
+ // display: flex;
+
+ .auditorioContainer{
+   width: 100%;
+   height: 100%;
+   display: flex;
+   align-items: center;
+   justify-content:flex-start;
+
+  
+  .carouselButton{
+    width: 30px;
+    height: 50px;
+    margin: 0 .2rem;
+    color: #fff;
+    background: none;
+    border: none;
+    font-size: 30px;
+  }
+ 
+
 
   .carouselContainer{
-    width: 75%;
+    width: 680px;
     height: 220px;
+    padding: 0 .5rem;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     background: red;
-   
+
     .coHostCarousel{
       width: 220px;
       height: 100%;
-      margin: 0 .5rem;
       display: flex;
       align-items: center;
       justify-content: center;
       background: blue;
 
       .meItem{
-        width: 220px;
+        width: 100%;
         height: 200px;
         margin: .2rem;
         display: flex;
@@ -39,7 +61,7 @@
       }
       
       .slickItem{
-        width: 220px;
+        width: 100%;
         height: 200px;
         margin: .2rem;
         display: flex;
@@ -56,7 +78,7 @@
       }
   
       .videoHostPlay {
-        width: 220px;
+        width: 100%;
         height: 200px;
         margin: .2rem;
         display: flex;
@@ -74,5 +96,5 @@
       }
     }
   }
-
+ }
 }
