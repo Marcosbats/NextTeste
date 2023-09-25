@@ -85,7 +85,7 @@ export function Slider(){
     slides.push(      
     <div className={styles.coHostCarousel}> 
       <div key="me" className={styles.meItem}>
-        { onplay ? (        
+              
           <video
             ref={videoRef}
             autoPlay
@@ -93,10 +93,7 @@ export function Slider(){
             muted
             className={styles.videoPeers}
           />
-        ):(
-          <div className={styles.videoHostPlay}>
-           <BsFillCameraVideoOffFill className={styles.cameraOff} />
-          </div>)}       
+            
         <audio
           ref={audioRef}
           autoPlay
