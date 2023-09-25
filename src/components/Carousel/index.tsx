@@ -85,7 +85,7 @@ export function Slider(){
     slides.push(      
     <div className={styles.coHostCarousel}> 
       <div key="me" className={styles.meItem}>
-        {camStream.active === true ? (        
+        { onplay ? (        
           <video
             ref={videoRef}
             autoPlay
@@ -108,9 +108,6 @@ export function Slider(){
     );
   }
  
- 
-  
-
   async function getNextRoomName() {
     const querySnapshot = await getDocs(collection(db, 'auditorio'));
     const roomNames = querySnapshot.docs.map((doc) => doc.id);
