@@ -85,7 +85,7 @@ export function Slider(){
     slides.push(      
     <div className={styles.coHostCarousel}> 
       <div key="me" className={styles.meItem}>
-        {videoFunction === "stop" ? (        
+        {camStream.active === true ? (        
           <video
             ref={videoRef}
             autoPlay
