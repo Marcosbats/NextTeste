@@ -74,58 +74,65 @@ export function Auditorio(){
     450: { items: 2 }, 
     950: { items: 3 }, 
   };
-const slides = Object.values(peers)
-.filter((peer) => peer.role === 'coHost')
-.map((peer) => (
-  <div className={styles.coHostCarousel}> 
-    <div key={peer.peerId} className={styles.slickItem}>          
-      {peer.cam ? (
-        <Video
-          className={styles.videoPeers}
-          peerId={peer.peerId}
-          track={peer.cam!}
-        />
-      ) : (
-        <div className={styles.videoHostPlay}>
+  const [slides, setSlides] = useState<JSX.Element[]>([]); // Provide an initial empty array
+
+  // Your event listener
+  useEventListener("room:peer-produce-start", () => {
+    // Assuming you have access to the 'peers' and 'me' objects
+    const updatedSlides  = Object.values(peers)
+  .filter((peer) => peer.role === 'coHost')
+  .map((peer) => (
+    <div className={styles.coHostCarousel}> 
+      <div key={peer.peerId} className={styles.slickItem}>          
+        {peer.cam ? (
+          <Video
+            className={styles.videoPeers}
+            peerId={peer.peerId}
+            track={peer.cam!}
+          />
+        ) : (
+          <div className={styles.videoHostPlay}>
+            <BsFillCameraVideoOffFill className={styles.cameraOff} />
+          </div>
+        )}
+        {peer.mic && (
+          <Audio
+            peerId={peer.peerId}
+            track={peer.mic!}
+          />
+        )} 
+      </div>     
+    </div>
+  ));
+  if (me.role === 'coHost') {
+    updatedSlides.push(      
+    <div className={styles.coHostCarousel}> 
+      <div key="me" className={styles.meItem}>
+        {videoFunction === "stop" ? (        
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={styles.videoPeers}
+          />
+        ):(
+          <div className={styles.videoHostPlay}>
           <BsFillCameraVideoOffFill className={styles.cameraOff} />
-        </div>
-      )}
-      {peer.mic && (
-        <Audio
-          peerId={peer.peerId}
-          track={peer.mic!}
-        />
-      )} 
-    </div>     
-  </div>
-));
-if (me.role === 'coHost') {
-  slides.push(      
-  <div className={styles.coHostCarousel}> 
-    <div key="me" className={styles.meItem}>
-      {videoFunction === "stop" ? (        
-        <video
-          ref={videoRef}
+          </div>)}       
+        <audio
+          ref={audioRef}
           autoPlay
           playsInline
-          muted
-          className={styles.videoPeers}
+          className={styles.audioElement}
         />
-      ):(
-        <div className={styles.videoHostPlay}>
-         <BsFillCameraVideoOffFill className={styles.cameraOff} />
-        </div>)}       
-      <audio
-        ref={audioRef}
-        autoPlay
-        playsInline
-        className={styles.audioElement}
-      />
-    </div>
-    </div>
-  );
-}
- 
+      </div>
+      </div>
+    );
+  }
+
+  setSlides(updatedSlides); // Update the slides state
+});
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -371,6 +378,7 @@ if (me.role === 'coHost') {
           )} 
         </div>                    
       </div>
+      <Slider />
     </div>    
   );
 };

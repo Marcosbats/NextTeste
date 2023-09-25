@@ -130,11 +130,11 @@ const slides = Object.values(peers)
              </>                                
     } else if (roomState === 'LOBBY') {
       return <> <IoLogIn className={styles.iconsPlay}/> 
-              Entrar na Sala
+                Entrar na Sala
              </> ;
     } else if (roomState === 'ROOM') {
       return <> <BsTelephoneX className={styles.iconsStop}/> 
-               Encerrar Sala
+                Encerrar Sala
              </>; 
     }
   };  
@@ -224,7 +224,8 @@ const slides = Object.values(peers)
         name: "Call", 
         date: currentDate,  
         roomId: roomId,   
-        coHost: 0,     
+        coHost: 0,  
+        excludedUsers: []   
         
       }
       await setDoc(userBase, userData)
@@ -235,14 +236,14 @@ const slides = Object.values(peers)
       console.error('Erro ao criar documento: ', error);
     }
   }
- 
+
+    
   async function initializeRoomId() {
       
     const roomId = await createRoom();
     console.log('ID gerado:', roomId);  
     sessionStorage.setItem('roomId', roomId);
-    joinLobby(roomId);  
-    
+    joinLobby(roomId);          
   }     
   
   useEffect(() => {
