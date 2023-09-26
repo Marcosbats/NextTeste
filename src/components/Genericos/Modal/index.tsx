@@ -80,16 +80,14 @@ export function ModalAuditorio({ onClose, onNameSubmit }: ModalProps) {
           </React.Fragment>
         ) : null}   
 
-        {address?      
+              
           <button
             disabled={!joinRoom.isCallable && !setDisplayName.isCallable  }
             onClick={handleRoomButtonClick}
           >
             {buttonLabelRoom()}
           </button> 
-        : 
-          <ConnectWallet btnTitle = " CONECTE SUA CARTEIRA "/>
-        }  
+         
 
       </div>
     </main>

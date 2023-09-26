@@ -18,6 +18,7 @@ import { Slider } from '../Carousel'
 import { collection, getDocs, limit, orderBy,query } from 'firebase/firestore';
 import initializeFirebaseClient from '@/src/services/firebaseConnection';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { ConnectWallet, useAddress } from '@thirdweb-dev/react';
 
 //Hamburguer
 interface NavbarProps {
@@ -56,6 +57,7 @@ export function Auditorio(){
   const { db } = initializeFirebaseClient();  
   const [idleCount, setIdleCount] = useState(0); 
   const carouselRef = useRef<AliceCarousel | null>(null);
+  const address = useAddress();
 
   const nextSlide = () => {
     if (carouselRef.current) {
@@ -268,112 +270,115 @@ export function Auditorio(){
         <>
           <ModalKickerPeer onClose={closeModal} />       
         </>
-      )}     
+      )}    
 
-      <div className={styles.statusContainer}>
-        <button className={`${styles.btnStatus} ${roomState.valueOf() === 'ROOM' ? styles.greenButton : styles.redButton}`} />
-        <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon} /> {Object.values(peers).length}
-      </div>
-      <div className={styles.callContainer}>
-        <h1>10ª Call da Comunidade</h1> 
-      </div>
-      <div className={styles.auditorioContainer}>
-        <div className={styles.settingsContainer}>
-          <div className={styles.transmitionContainer}>      
-            {Object.values(peers)
-            .filter((peer) => peer.role === 'host')
-            .map((peer) => (
-              <div key={peer.peerId} className={styles.transmitionHost} >
-                {peer.cam ?(
-                  <Video
-                    className={styles.videoHost}
-                    peerId={peer.peerId}
-                    track={peer.cam!}
-                  />
-                ) : (
-                <div className={styles.videoHostPlay}>
-                  <BsFillCameraVideoOffFill className={styles.cameraOff} />
-                </div>)}
-                {peer.mic && (
-                  <Audio
-                    peerId={peer.peerId}
-                    track={peer.mic!}
-                  />
-                )}
-              </div>
-              ))
-            } 
-            <div className={styles.statusMic}>
-              <span>{ me.role === 'coHost' && audioFunction === 'play' ? 'Você está mutado' : '' }</span>
-            </div>   
-          </div> 
-          <div className={styles.navbar}>
-            <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} />
-            {isOpen && (
-              <div className={styles.sidebar}>
-                <div className={styles.sub}>
-                  {Object.values(peers)
-                    .filter((peer) => peer.displayName) 
-                    .map((peer, index) => (
-                      <span key={index}><LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)}</span>
-                    ))}
-                </div>
-              </div>
-            )}
-          </div>         
+      
+        <div className={styles.statusContainer}>
+          <button className={`${styles.btnStatus} ${roomState.valueOf() === 'ROOM' ? styles.greenButton : styles.redButton}`} />
+          <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon} /> {Object.values(peers).length}
         </div>
-        
-        {slides.length > 0 && (
-          <div className={styles.carouselContent}> 
-          <button onClick={prevSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
-                <FaChevronLeft />
-              </button>
-            <div className={styles.carouselContainer}>
-              
-               <AliceCarousel
-                autoWidth 
-                responsive={responsive} 
-                items={slides}
-                mouseTracking
-                disableDotsControls
-                disableButtonsControls          
-                ref={carouselRef}
-              > 
-                {slides} 
-              </AliceCarousel>
-              
-            </div>    
-            <button onClick={nextSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
-                <FaChevronRight />
-              </button>
-           
-            
-                  
-            
-          </div> 
-        )}
-       
-        <div className={styles.admButtons}>
+        <div className={styles.callContainer}>
+          <h1>10ª Call da Comunidade</h1> 
+        </div>
+        <div className={styles.auditorioContainer}>
+          <div className={styles.settingsContainer}>
+            <div className={styles.transmitionContainer}>      
+              {Object.values(peers)
+              .filter((peer) => peer.role === 'host')
+              .map((peer) => (
+                <div key={peer.peerId} className={styles.transmitionHost} >
+                  {peer.cam ?(
+                    <Video
+                      className={styles.videoHost}
+                      peerId={peer.peerId}
+                      track={peer.cam!}
+                    />
+                  ) : (
+                  <div className={styles.videoHostPlay}>
+                    <BsFillCameraVideoOffFill className={styles.cameraOff} />
+                  </div>)}
+                  {peer.mic && (
+                    <Audio
+                      peerId={peer.peerId}
+                      track={peer.mic!}
+                    />
+                  )}
+                </div>
+                ))
+              } 
+              <div className={styles.statusMic}>
+                <span>{ me.role === 'coHost' && audioFunction === 'play' ? 'Você está mutado' : '' }</span>
+              </div>   
+            </div> 
+            <div className={styles.navbar}>
+              <Navbar isOpen={isOpen} toggleSidebar={() => setOpen(!isOpen)} />
+              {isOpen && (
+                <div className={styles.sidebar}>
+                  <div className={styles.sub}>
+                    {Object.values(peers)
+                      .filter((peer) => peer.displayName) 
+                      .map((peer, index) => (
+                        <span key={index}><LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)}</span>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>         
+          </div>
           
-          <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}>
-            <BsTelephoneX className={styles.iconsStop}/> 
-            Sair da Sala
-          </Link>        
+          {slides.length > 0 && (
+            <div className={styles.carouselContent}> 
+            <button onClick={prevSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
+                  <FaChevronLeft />
+                </button>
+              <div className={styles.carouselContainer}>
+                
+                <AliceCarousel
+                  autoWidth 
+                  responsive={responsive} 
+                  items={slides}
+                  mouseTracking
+                  disableDotsControls
+                  disableButtonsControls          
+                  ref={carouselRef}
+                > 
+                  {slides} 
+                </AliceCarousel>
+                
+              </div>    
+              <button onClick={nextSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
+                  <FaChevronRight />
+                </button>
+            
+              
+                    
+              
+            </div> 
+          )}
+        
+          <div className={styles.admButtons}>
+            
+            <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}>
+              <BsTelephoneX className={styles.iconsStop}/> 
+              Sair da Sala
+            </Link>        
 
-          { me.role === 'coHost' &&(
-            <>
-              <button onClick={videoButtonClick}>
-                {buttonLabelVideo()}
-              </button>
+            { me.role === 'coHost' &&(
+              <>
+                <button onClick={videoButtonClick}>
+                  {buttonLabelVideo()}
+                </button>
 
-              <button onClick={audioButtonClick}>
-                {buttonLabelAudio()}
-              </button> 
-            </>
-          )} 
-        </div>                    
-      </div>
-      <Slider />
+                <button onClick={audioButtonClick}>
+                  {buttonLabelAudio()}
+                </button> 
+              </>
+            )} 
+          </div>                    
+        </div>
+        <Slider />
+      
+      
     </div>    
   );
 };
