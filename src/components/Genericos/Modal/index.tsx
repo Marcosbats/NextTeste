@@ -6,6 +6,7 @@ import { useDisplayName } from "@huddle01/react/app-utils";
 import { useHuddle01, useRoom } from '@huddle01/react/hooks';
 import { Loading } from '../../Genericos/Loading'
 import { toast } from 'react-toastify';
+import { ConnectWallet, useAddress } from '@thirdweb-dev/react';
 
 interface ModalProps {
     onClose: () => void; 
@@ -17,6 +18,7 @@ export function ModalAuditorio({ onClose, onNameSubmit }: ModalProps) {
   const [displayNameText, setDisplayNameText] = useState(" ");
   const { joinRoom} = useRoom();
   const { roomState } = useHuddle01();
+  const address = useAddress();
 
    const handleRoomButtonClick = () => {
     if (roomState.valueOf() === 'LOBBY') {
@@ -65,24 +67,30 @@ export function ModalAuditorio({ onClose, onNameSubmit }: ModalProps) {
   return (
     <main className={styles.modalContainer}>
       <div className={styles.modalContent}>
-      {roomState === "ROOM" ? (
-        <React.Fragment>
-           <h2>Insira seu nome</h2>
-          <input
-            type="text"
-            placeholder=" Digite seu Nome"
-            value={displayNameText}
-            onChange={(e) => setDisplayNameText(e.target.value)}
-            className={styles.inputContainer}
-          />
-        </React.Fragment>
-      ) : null}         
-        <button
-          disabled={!joinRoom.isCallable && !setDisplayName.isCallable  }
-          onClick={handleRoomButtonClick}
-        >
-          {buttonLabelRoom()}
-        </button>       
+        {roomState === "ROOM" ? (
+          <React.Fragment>
+            <h2>Insira seu nome</h2>
+            <input
+              type="text"
+              placeholder=" Digite seu Nome"
+              value={displayNameText}
+              onChange={(e) => setDisplayNameText(e.target.value)}
+              className={styles.inputContainer}
+            />
+          </React.Fragment>
+        ) : null}   
+
+        {address?      
+          <button
+            disabled={!joinRoom.isCallable && !setDisplayName.isCallable  }
+            onClick={handleRoomButtonClick}
+          >
+            {buttonLabelRoom()}
+          </button> 
+        : 
+          <ConnectWallet btnTitle = " CONECTE SUA CARTEIRA "/>
+        }  
+
       </div>
     </main>
   );
