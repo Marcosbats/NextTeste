@@ -58,7 +58,8 @@ export function Welcome(){
   const [isModalOpen, setIsModalOpen] = useState(false);
 	const { db } = initializeFirebaseClient()
   const carouselRef = useRef<AliceCarousel | null>(null);
-
+  let roomName: any;
+  
   const nextSlide = () => {
     if (carouselRef.current) {
       carouselRef.current.slideNext();
@@ -76,31 +77,31 @@ export function Welcome(){
     450: { items: 2 }, 
     950: { items: 3 }, 
   };
-const slides = Object.values(peers)
-.filter((peer) => peer.role === 'coHost')
-.map((peer) => (
-  <div className={styles.coHostCarousel}> 
-    <div key={peer.peerId} className={styles.slickItem}>          
-      {peer.cam ? (
-        <Video
-          className={styles.videoPeers}
-          peerId={peer.peerId}
-          track={peer.cam!}
-        />
-      ) : (
-        <div className={styles.videoHostPlay}>
-          <BsFillCameraVideoOffFill className={styles.cameraOff} />
-        </div>
-      )}
-      {peer.mic && (
-        <Audio
-          peerId={peer.peerId}
-          track={peer.mic!}
-        />
-      )} 
-    </div>     
-  </div>
-)); 
+  const slides = Object.values(peers)
+  .filter((peer) => peer.role === 'coHost')
+  .map((peer) => (
+    <div className={styles.coHostCarousel}> 
+      <div key={peer.peerId} className={styles.slickItem}>          
+        {peer.cam ? (
+          <Video
+            className={styles.videoPeers}
+            peerId={peer.peerId}
+            track={peer.cam!}
+          />
+        ) : (
+          <div className={styles.videoHostPlay}>
+            <BsFillCameraVideoOffFill className={styles.cameraOff} />
+          </div>
+        )}
+        {peer.mic && (
+          <Audio
+            peerId={peer.peerId}
+            track={peer.mic!}
+          />
+        )} 
+      </div>     
+    </div>
+  )); 
   
   const closeModal = () => {
     setIsModalOpen(false);
@@ -213,7 +214,7 @@ const slides = Object.values(peers)
 
   async function createNewRoom() {
     const roomName = await getNextRoomName();
-  
+   
     try {
       const userBase = doc(db, "auditorio", roomName)
       
@@ -225,8 +226,8 @@ const slides = Object.values(peers)
         date: currentDate,  
         roomId: roomId,   
         coHost: 0,  
-        excludedUsers: []   
-        
+        excludedUsers: [], 
+        statusRoom : true,      
       }
       await setDoc(userBase, userData)
       console.log('Documento criado com ID: ', userBase.id);
@@ -236,6 +237,41 @@ const slides = Object.values(peers)
       console.error('Erro ao criar documento: ', error);
     }
   }
+
+  async function teste(){
+    const userBase = doc(db, "auditorio", roomName);
+    const roomSnapshot = await getDoc(userBase);
+      if (roomSnapshot.exists()) {
+        // Atualiza o valor de statusRoom para false no documento da sala
+        await updateDoc(userBase, { statusRoom: false });
+        console.log("statusRoom definido como false no banco de dados.");
+      } else {
+        console.error("Sala não encontrada no banco de dados.");
+      }    
+  }
+  
+  useEventListener("room:me-left", async () => {
+    console.log("Agoraa ,,,room: me-left");
+     
+    // Atualiza statusRoom para false no banco de dados
+    try {
+       console.log('uSala agoar: ', roomName);
+  
+      
+      const userBase = doc(db, "auditorio", roomName);  
+      // Obtém o documento da sala
+      const roomSnapshot = await getDoc(userBase);
+      if (roomSnapshot.exists()) {
+        // Atualiza o valor de statusRoom para false no documento da sala
+        await updateDoc(userBase, { statusRoom: false });
+        console.log("statusRoom definido como false no banco de dados.");
+      } else {
+        console.error("Sala não encontrada no banco de dados.");
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar statusRoom no banco de dados: ", error);
+    }
+  });
 
     
   async function initializeRoomId() {

@@ -103,7 +103,7 @@ export function Auditorio(){
     </div>
   ));
   if (me.role === 'coHost') {
-    slides.push(      
+    slides.unshift(      
     <div className={styles.coHostCarousel}> 
       <div key="me" className={styles.meItem}>
         {videoFunction === "stop" ? (        
@@ -128,7 +128,6 @@ export function Auditorio(){
       </div>
     );
   }
-
  
   const closeModal = () => {
     setIsModalOpen(false);
@@ -188,7 +187,7 @@ export function Auditorio(){
   };
   
 
-  async function fetchLastRoomData() {
+  async function fetchCurrentRoomData() {
     const collectionRef = collection(db, "auditorio");
 
     // Consulta os documentos ordenados por um campo (por exemplo, data) em ordem decrescente
@@ -210,8 +209,8 @@ export function Auditorio(){
     }
   }
 
-  async function renderLastRoomData() {
-    const lastRoomData = await fetchLastRoomData();
+  async function renderCurrentRoomData() {
+    const lastRoomData = await fetchCurrentRoomData();
 
     if (lastRoomData) {
 
@@ -254,7 +253,7 @@ export function Auditorio(){
 
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
-    renderLastRoomData();
+    renderCurrentRoomData();
   }, []);
 
   return (
