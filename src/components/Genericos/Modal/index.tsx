@@ -25,7 +25,7 @@ export function ModalAuditorio({ onClose, onNameSubmit }: ModalProps) {
       } catch (error) {
         console.error('Erro:', error);
       }
-    } else if  (roomState.valueOf() === 'ROOM') {
+    } else if (roomState.valueOf() === 'ROOM') {
      
       if (displayNameText.trim() === '') {
         toast.error('Nome não pode estar em branco.');

@@ -50,6 +50,7 @@ export function Slider(){
       carouselRef.current.slidePrev();
     }
   };
+  
   const responsive = {
     0: { items: 1 }, 
     450: { items: 2 }, 
@@ -85,7 +86,7 @@ export function Slider(){
     slides.push(      
     <div className={styles.coHostCarousel}> 
       <div key="me" className={styles.meItem}>
-              
+                 
           <video
             ref={videoRef}
             autoPlay
@@ -93,7 +94,7 @@ export function Slider(){
             muted
             className={styles.videoPeers}
           />
-            
+               
         <audio
           ref={audioRef}
           autoPlay
@@ -104,7 +105,7 @@ export function Slider(){
       </div>
     );
   }
- 
+  
   async function getNextRoomName() {
     const querySnapshot = await getDocs(collection(db, 'auditorio'));
     const roomNames = querySnapshot.docs.map((doc) => doc.id);
@@ -178,6 +179,25 @@ export function Slider(){
 
   return (
     <div className={styles.mainContainer}>   
+    <div className={styles.coHostCarousel}> 
+      <div key="me" className={styles.meItem}>
+              
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={styles.videoPeers}
+          />
+            
+        <audio
+          ref={audioRef}
+          autoPlay
+          playsInline
+          className={styles.audioElement}
+        />
+      </div>
+      </div>
          
       <div className={styles.auditorioContainer}> 
       <button onClick={prevSlide} className={styles.carouselButton}>
@@ -205,8 +225,33 @@ export function Slider(){
         
               
         
-      </div>                
-    </div>    
+      </div>  
+      {
+       Object.values(me)
+        .filter((me) => me.role === 'coHost')
+        .map((me) => (
+          <div className={styles.coHostCarousel}> 
+            <div key={me.meId} className={styles.slickItem}>        
+            
+                <Video
+                  className={styles.videoPeers}
+                  peerId={me.meId}
+                  track={me.cam!}
+                />
+                 
+              
+                <Audio
+                  peerId={me.meId}
+                  track={me.mic!}
+                />
+           
+            
+            </div>     
+          </div>
+        )) 
+      }            
+    </div>
+
   );
 };
 

@@ -74,12 +74,8 @@ export function Auditorio(){
     450: { items: 2 }, 
     950: { items: 3 }, 
   };
-  const [slides, setSlides] = useState<JSX.Element[]>([]); // Provide an initial empty array
-
-  // Your event listener
-  useEventListener("room:peer-produce-start", () => {
-    // Assuming you have access to the 'peers' and 'me' objects
-    const updatedSlides  = Object.values(peers)
+ 
+    const slides  = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
   .map((peer) => (
     <div className={styles.coHostCarousel}> 
@@ -105,7 +101,7 @@ export function Auditorio(){
     </div>
   ));
   if (me.role === 'coHost') {
-    updatedSlides.push(      
+    slides.push(      
     <div className={styles.coHostCarousel}> 
       <div key="me" className={styles.meItem}>
         {videoFunction === "stop" ? (        
@@ -131,8 +127,7 @@ export function Auditorio(){
     );
   }
 
-  setSlides(updatedSlides); // Update the slides state
-});
+ 
   const closeModal = () => {
     setIsModalOpen(false);
   };
