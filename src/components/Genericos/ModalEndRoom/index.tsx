@@ -12,6 +12,7 @@ export function ModalEndRoom({ onClose }: ModalProps) {
   const endButton = () => {
     endRoom();
     onClose();
+    window.location.href = 'https://ibeed.xyz/comunidade';
   }
 
   return (

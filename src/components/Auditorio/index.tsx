@@ -185,7 +185,6 @@ export function Auditorio(){
       return <BsMicMute className={styles.iconsStop}/>;
     } 
   };
-  
 
   async function fetchCurrentRoomData() {
     const collectionRef = collection(db, "auditorio");

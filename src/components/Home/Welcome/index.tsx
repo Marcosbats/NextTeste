@@ -58,7 +58,7 @@ export function Welcome(){
   const [isModalOpen, setIsModalOpen] = useState(false);
 	const { db } = initializeFirebaseClient()
   const carouselRef = useRef<AliceCarousel | null>(null);
-  let roomName: any;
+  const [roomCreated, setRoomCreated] = useState(false)
   
   const nextSlide = () => {
     if (carouselRef.current) {
@@ -115,12 +115,12 @@ export function Welcome(){
     if (roomState === 'LOBBY') {
       try {
         joinRoom();
-        createNewRoom();
       } catch (error) {
         console.error('Erro:', error);
       }
     } else if (roomState === 'ROOM') {        
         setIsModalOpen(true);
+        //teste();
     }
   };
 
@@ -192,6 +192,12 @@ export function Welcome(){
     } 
   };
 
+  useEffect(() => {
+    if (roomState === "ROOM" && !roomCreated) {
+      createNewRoom();
+    }
+  }, [roomState, roomCreated]); 
+
   async function getNextRoomName() {
     const querySnapshot = await getDocs(collection(db, 'auditorio'));
     const roomNames = querySnapshot.docs.map((doc) => doc.id);
@@ -214,23 +220,25 @@ export function Welcome(){
 
   async function createNewRoom() {
     const roomName = await getNextRoomName();
+    sessionStorage.setItem('roomName', roomName);
    
     try {
-      const userBase = doc(db, "auditorio", roomName)
+      const roomRef = doc(db, "auditorio", roomName)
       
       const currentDate = new Date();
       const roomId = sessionStorage.getItem('roomId');
       
-      const userData = {
+      const roomData = {
         name: "Call", 
         date: currentDate,  
         roomId: roomId,   
         coHost: 0,  
         excludedUsers: [], 
-        statusRoom : true,      
+        stateRoom : "open",      
       }
-      await setDoc(userBase, userData)
-      console.log('Documento criado com ID: ', userBase.id);
+      await setDoc(roomRef, roomData)
+      console.log('Documento criado com ID: ', roomRef.id);
+      setRoomCreated(true);
       
       return roomName;
     } catch (error) {
@@ -239,34 +247,45 @@ export function Welcome(){
   }
 
   async function teste(){
-    const userBase = doc(db, "auditorio", roomName);
-    const roomSnapshot = await getDoc(userBase);
-      if (roomSnapshot.exists()) {
-        // Atualiza o valor de statusRoom para false no documento da sala
-        await updateDoc(userBase, { statusRoom: false });
-        console.log("statusRoom definido como false no banco de dados.");
+    const roomName = await createNewRoom();
+    try {
+      if (typeof roomName === 'string') {
+        const roomRef = doc(db, "auditorio", roomName);
+        // Resto do seu código usando roomRef
       } else {
-        console.error("Sala não encontrada no banco de dados.");
-      }    
+        console.error('roomName não é uma string válida.');
+      }
+     
+      
+    } catch (error) {
+      
+    }
+   
+        console.log("Nome da Sala: ", roomName);
+     
   }
   
   useEventListener("room:me-left", async () => {
+    const roomName = sessionStorage.getItem('roomName');
+   
     console.log("Agoraa ,,,room: me-left");
      
     // Atualiza statusRoom para false no banco de dados
     try {
-       console.log('uSala agoar: ', roomName);
-  
-      
-      const userBase = doc(db, "auditorio", roomName);  
+
+      if (typeof roomName === 'string') {
+        const roomRef = doc(db, "auditorio", roomName);
       // Obtém o documento da sala
-      const roomSnapshot = await getDoc(userBase);
-      if (roomSnapshot.exists()) {
-        // Atualiza o valor de statusRoom para false no documento da sala
-        await updateDoc(userBase, { statusRoom: false });
-        console.log("statusRoom definido como false no banco de dados.");
+      const roomSnapshot = await getDoc(roomRef);
+        if (roomSnapshot.exists()) {
+          // Atualiza o valor de statusRoom para false no documento da sala
+          await updateDoc(roomRef, { stateRoom:"closed" });
+          console.log("statusRoom definido como false no banco de dados.");
+        } else {
+          console.error("Sala não encontrada no banco de dados.");
+        }
       } else {
-        console.error("Sala não encontrada no banco de dados.");
+        console.error('roomName não é uma string válida.');
       }
     } catch (error) {
       console.error("Erro ao atualizar statusRoom no banco de dados: ", error);
