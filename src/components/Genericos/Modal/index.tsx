@@ -109,7 +109,7 @@ export function ModalAuditorio({ onClose, onNameSubmit }: ModalProps) {
   return (
     <main className={styles.modalContainer}>
       <div className={styles.modalContent}>
-        {roomState === "ROOM" ? (
+        {roomState === "ROOM" ? 
           <React.Fragment>
             <h2>Insira seu nome</h2>
             <input
@@ -120,7 +120,7 @@ export function ModalAuditorio({ onClose, onNameSubmit }: ModalProps) {
               className={styles.inputContainer}
             />
           </React.Fragment>
-        ) : null}   
+        : null}   
 
         {loading ? 
           <Loading />           

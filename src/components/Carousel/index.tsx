@@ -83,18 +83,16 @@ export function Slider(){
     </div>
   ));
   if (me.role === 'coHost') {
-    slides.push(      
+    slides.unshift(      
     <div className={styles.coHostCarousel}> 
-      <div key="me" className={styles.meItem}>
-                 
+      <div key="me" className={styles.meItem}>                 
           <video
             ref={videoRef}
             autoPlay
             playsInline
             muted
             className={styles.videoPeers}
-          />
-               
+          />               
         <audio
           ref={audioRef}
           autoPlay

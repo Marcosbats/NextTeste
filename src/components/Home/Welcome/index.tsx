@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
 import { useDisplayName } from "@huddle01/react/app-utils";
-import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener } from '@huddle01/react/hooks';
+import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener, useRecording } from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
@@ -59,6 +59,18 @@ export function Welcome(){
 	const { db } = initializeFirebaseClient()
   const carouselRef = useRef<AliceCarousel | null>(null);
   const [roomCreated, setRoomCreated] = useState(false)
+  
+  const [roomId, setRoomId] = useState("");
+  const {
+    startRecording,
+    stopRecording,
+    isStarting, inProgress, isStopping,
+    error,
+    data: recordingData,
+  } = useRecording();
+
+  if(inProgress) return (<div>...loading</div>)
+
   
   const nextSlide = () => {
     if (carouselRef.current) {
@@ -120,7 +132,6 @@ export function Welcome(){
       }
     } else if (roomState === 'ROOM') {        
         setIsModalOpen(true);
-        //teste();
     }
   };
 
@@ -245,42 +256,20 @@ export function Welcome(){
       console.error('Erro ao criar documento: ', error);
     }
   }
-
-  async function teste(){
-    const roomName = await createNewRoom();
-    try {
-      if (typeof roomName === 'string') {
-        const roomRef = doc(db, "auditorio", roomName);
-        // Resto do seu código usando roomRef
-      } else {
-        console.error('roomName não é uma string válida.');
-      }
-     
-      
-    } catch (error) {
-      
-    }
-   
-        console.log("Nome da Sala: ", roomName);
-     
-  }
   
   useEventListener("room:me-left", async () => {
     const roomName = sessionStorage.getItem('roomName');
    
-    console.log("Agoraa ,,,room: me-left");
-     
-    // Atualiza statusRoom para false no banco de dados
     try {
 
       if (typeof roomName === 'string') {
         const roomRef = doc(db, "auditorio", roomName);
-      // Obtém o documento da sala
-      const roomSnapshot = await getDoc(roomRef);
+     
+        const roomSnapshot = await getDoc(roomRef);
         if (roomSnapshot.exists()) {
-          // Atualiza o valor de statusRoom para false no documento da sala
+          
           await updateDoc(roomRef, { stateRoom:"closed" });
-          console.log("statusRoom definido como false no banco de dados.");
+          console.log("statusRoom definido como closed no banco de dados.");
         } else {
           console.error("Sala não encontrada no banco de dados.");
         }
@@ -436,6 +425,25 @@ export function Welcome(){
           <button onClick={audioButtonClick}>
             {buttonLabelAudio()}
           </button> 
+
+          <button
+            disabled={!startRecording}
+            onClick={() =>
+              startRecording(`${window.location.href}rec/${roomId}`)
+            }
+          >
+            {`START error: ${error}`}
+          </button>
+          <button disabled={!stopRecording} onClick={stopRecording}>
+            STOP
+          </button>
+  
+          {isStarting ? "Recording is starting": error} 
+  
+  
+        <button disabled={!stopRecording} onClick={stopRecording}>
+          STOP
+        </button>
 
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
