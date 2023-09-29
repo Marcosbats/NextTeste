@@ -428,12 +428,15 @@ export function Welcome(){
   
           <button          
           onClick={() =>
-            startRecording
+            startRecording(`${window.location.href}rec/${roomId}`)
           }
           >
            start
          </button>
  
+        {inProgress ? "loading": " "}
+        {isStopping? "parou" : " "}
+
         <button onClick={stopRecording}>
           STOP
         </button>
