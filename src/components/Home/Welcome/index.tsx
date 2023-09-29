@@ -269,7 +269,8 @@ export function Welcome(){
         if (roomSnapshot.exists()) {
           
           await updateDoc(roomRef, { stateRoom:"closed" });
-          console.log("statusRoom definido como closed no banco de dados.");
+          console.log("statusRoom definido como closed no banco de dados.");          
+          window.location.href = 'https://ibeed.xyz/comunidade';
         } else {
           console.error("Sala não encontrada no banco de dados.");
         }
@@ -325,7 +326,7 @@ export function Welcome(){
         <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
       </div>
       <div className={styles.callContainer}>
-       <h1>10ª Call da Comunidade</h1>        
+       <h1>10ª Call da Comunidade</h1>               
       </div>           
       <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>        
@@ -426,28 +427,26 @@ export function Welcome(){
             {buttonLabelAudio()}
           </button> 
 
-          <button
-            disabled={!startRecording}
-            onClick={() =>
-              startRecording(`${window.location.href}rec/${roomId}`)
-            }
+  
+          <button          
+          onClick={() =>
+            startRecording(`${window.location.href}rec/${roomId}`)
+          }
           >
-            {`START error: ${error}`}
-          </button>
-          <button disabled={!stopRecording} onClick={stopRecording}>
-            STOP
-          </button>
-  
-          {isStarting ? "Recording is starting": error} 
-  
-  
-        <button disabled={!stopRecording} onClick={stopRecording}>
+          START
+         </button>
+ 
+        {isStarting ? "Recording is starting": error} 
+ 
+ 
+        <button onClick={stopRecording}>
           STOP
         </button>
 
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
           </Link>
+
          
         </div>  
         {isModalOpen &&

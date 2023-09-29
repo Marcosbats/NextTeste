@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import styles from './styles.module.scss'
 import { useHuddle01, useRoom } from '@huddle01/react/hooks';
+
 interface ModalProps {
-  onClose: () => void;       
+  onClose: () => void;         
 }
 
 export function ModalEndRoom({ onClose }: ModalProps) {
@@ -12,7 +13,7 @@ export function ModalEndRoom({ onClose }: ModalProps) {
   const endButton = () => {
     endRoom();
     onClose();
-    window.location.href = 'https://ibeed.xyz/comunidade';
+   // window.location.href = 'https://ibeed.xyz/comunidade';
   }
 
   return (
