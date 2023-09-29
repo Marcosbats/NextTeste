@@ -69,8 +69,7 @@ export function Welcome(){
     data: recordingData,
   } = useRecording();
 
-  if(inProgress) return (<div>...loading</div>)
-
+ 
   
   const nextSlide = () => {
     if (carouselRef.current) {
@@ -438,7 +437,9 @@ export function Welcome(){
  
         {isStarting ? "Recording is starting": error} 
  
- 
+        {inProgress ? "loading": "naans"}
+        {isStopping? "parou" : " ainda na"}
+
         <button onClick={stopRecording}>
           STOP
         </button>
