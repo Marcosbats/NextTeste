@@ -237,11 +237,9 @@ export function Welcome(){
       const currentDate = new Date();
       const roomId = sessionStorage.getItem('roomId');
       
-      const roomData = {
-        name: "Call", 
+      const roomData = { 
         date: currentDate,  
-        roomId: roomId,   
-        coHost: 0,  
+        roomId: roomId,     
         excludedUsers: [], 
         stateRoom : "open",      
       }

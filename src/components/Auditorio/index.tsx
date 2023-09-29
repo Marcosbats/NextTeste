@@ -374,9 +374,7 @@ export function Auditorio(){
             )} 
           </div>                    
         </div>
-        <Slider />
-      
-      
+        
     </div>    
   );
 };
