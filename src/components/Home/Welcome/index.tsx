@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
 import { useDisplayName } from "@huddle01/react/app-utils";
-import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener, useRecording } from '@huddle01/react/hooks';
+import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener } from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
@@ -17,7 +17,6 @@ import { createRoom } from '../../../pages/api/roomId';
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import { ModalEndRoom } from '../../Genericos/ModalEndRoom';
-import { Slider } from '../../Carousel'
 import initializeFirebaseClient from '../../../services/firebaseConnection'
 import { addDoc, collection, doc, getDoc, getDocs, increment, setDoc, updateDoc } from 'firebase/firestore'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -61,15 +60,7 @@ export function Welcome(){
   const [roomCreated, setRoomCreated] = useState(false)
   
   const [roomId, setRoomId] = useState("");
-  const {
-    startRecording,
-    stopRecording,
-    isStarting, inProgress, isStopping,
-    error,
-    data: recordingData,
-  } = useRecording();
-   
-  
+    
   const nextSlide = () => {
     if (carouselRef.current) {
       carouselRef.current.slideNext();
@@ -422,22 +413,6 @@ export function Welcome(){
           <button onClick={audioButtonClick}>
             {buttonLabelAudio()}
           </button> 
-
-  
-          <button          
-          onClick={() =>
-            startRecording(`${window.location.href}rec/${roomId}`)
-          }
-          >
-           start
-         </button>
- 
-        {inProgress ? "loading": " "}
-        {isStopping? "parou" : " "}
-
-        <button onClick={stopRecording}>
-          STOP
-        </button>
 
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO

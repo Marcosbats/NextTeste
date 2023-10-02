@@ -15,7 +15,7 @@ import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import { ModalKickerPeer } from '../Genericos/ModalKickerPeer';
 import { Slider } from '../Carousel'
-import { collection, getDocs, limit, orderBy,query } from 'firebase/firestore';
+import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
 import initializeFirebaseClient from '@/src/services/firebaseConnection';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { ConnectWallet, useAddress } from '@thirdweb-dev/react';
@@ -77,35 +77,11 @@ export function Auditorio(){
     950: { items: 3 }, 
   };
  
-    const slides  = Object.values(peers)
-  .filter((peer) => peer.role === 'coHost')
-  .map((peer) => (
+    const slides  = 
+
+(      
     <div className={styles.coHostCarousel}> 
-      <div key={peer.peerId} className={styles.slickItem}>          
-        {peer.cam ? (
-          <Video
-            className={styles.videoPeers}
-            peerId={peer.peerId}
-            track={peer.cam!}
-          />
-        ) : (
-          <div className={styles.videoHostPlay}>
-            <BsFillCameraVideoOffFill className={styles.cameraOff} />
-          </div>
-        )}
-        {peer.mic && (
-          <Audio
-            peerId={peer.peerId}
-            track={peer.mic!}
-          />
-        )} 
-      </div>     
-    </div>
-  ));
-  if (me.role === 'coHost') {
-    slides.unshift(      
-    <div className={styles.coHostCarousel}> 
-      <div key="me" className={styles.meItem}>
+      <div key={me.meId} className={styles.meItem}>
         {videoFunction === "stop" ? (        
           <video
             ref={videoRef}
@@ -126,8 +102,7 @@ export function Auditorio(){
         />
       </div>
       </div>
-    );
-  }
+    )
  
   const closeModal = () => {
     setIsModalOpen(false);
@@ -324,36 +299,6 @@ export function Auditorio(){
             </div>         
           </div>
           
-          {slides.length > 0 && (
-            <div className={styles.carouselContent}> 
-            <button onClick={prevSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
-                  <FaChevronLeft />
-                </button>
-              <div className={styles.carouselContainer}>
-                
-                <AliceCarousel
-                  autoWidth 
-                  responsive={responsive} 
-                  items={slides}
-                  mouseTracking
-                  disableDotsControls
-                  disableButtonsControls          
-                  ref={carouselRef}
-                > 
-                  {slides} 
-                </AliceCarousel>
-                
-              </div>    
-              <button onClick={nextSlide} className={`${slides.length < 4 ? styles.carouselButtonNone : styles.carouselButton}`}>
-                  <FaChevronRight />
-                </button>
-            
-              
-                    
-              
-            </div> 
-          )}
-        
           <div className={styles.admButtons}>
             
             <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}>
@@ -374,7 +319,7 @@ export function Auditorio(){
             )} 
           </div>                    
         </div>
-        
+        <Slider meVideo={videoRef} meAudio={audioRef}/>
     </div>    
   );
 };

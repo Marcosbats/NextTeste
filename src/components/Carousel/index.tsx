@@ -5,21 +5,19 @@ import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
 import { useDisplayName } from "@huddle01/react/app-utils";
 import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener } from '@huddle01/react/hooks';
-import { Divide as Hamburger } from 'hamburger-react'
-import { toast } from 'react-toastify'
-import { LuUsers, LuUser } from "react-icons/lu";
-import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
-import { BsMic, BsMicMute,  BsTelephoneX, BsX, BsFillCameraVideoOffFill } from "react-icons/bs";
-import { IoLogIn } from "react-icons/io5";
-import { RiSpeakFill } from "react-icons/ri";
+import { BsFillCameraVideoOffFill } from "react-icons/bs";
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import initializeFirebaseClient from '../../services/firebaseConnection'
 import { addDoc, collection, doc, getDoc, getDocs, increment, setDoc, updateDoc } from 'firebase/firestore'
-import { FaChevronCircleLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
+interface SliderProps { 
+  meVideo: React.RefObject<HTMLVideoElement>;
+  meAudio: React.RefObject<HTMLAudioElement>;
+}
 
-export function Slider(){ 
+export function Slider({ meVideo, meAudio } : SliderProps){ 
   const { initialize, roomState } = useHuddle01();
   const { joinLobby } = useLobby(); 
   const { joinRoom, endRoom } = useRoom(); 
@@ -59,9 +57,9 @@ export function Slider(){
 
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
-  .map((peer) => (
+  .map((peer, peerId) => (
     <div className={styles.coHostCarousel}> 
-      <div key={peer.peerId} className={styles.slickItem}>          
+      <div key={peerId} className={styles.slickItem}>          
         {peer.cam ? (
           <Video
             className={styles.videoPeers}
@@ -84,22 +82,11 @@ export function Slider(){
   ));
   if (me.role === 'coHost') {
     slides.unshift(      
-    <div className={styles.coHostCarousel}> 
-      <div key="me" className={styles.meItem}>                 
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className={styles.videoPeers}
-          />               
-        <audio
-          ref={audioRef}
-          autoPlay
-          playsInline
-          className={styles.audioElement}
-        />
-      </div>
+      <div className={styles.coHostCarousel}> 
+        <div key={me.meId} className={styles.meItem}>                 
+        {meVideo && <video ref={meVideo} autoPlay playsInline muted className={styles.videoPeers} />}
+        {meAudio && <audio ref={meAudio} autoPlay playsInline className="audioElement" />}     
+        </div>
       </div>
     );
   }
@@ -176,27 +163,8 @@ export function Slider(){
   }, []);
 
   return (
-    <div className={styles.mainContainer}>   
-    <div className={styles.coHostCarousel}> 
-      <div key="me" className={styles.meItem}>
-              
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className={styles.videoPeers}
-          />
-            
-        <audio
-          ref={audioRef}
-          autoPlay
-          playsInline
-          className={styles.audioElement}
-        />
-      </div>
-      </div>
-         
+    <div className={styles.mainContainer}>
+      
       <div className={styles.auditorioContainer}> 
       <button onClick={prevSlide} className={styles.carouselButton}>
             <FaChevronLeft />
@@ -219,35 +187,8 @@ export function Slider(){
         <button onClick={nextSlide} className={styles.carouselButton}>
             <FaChevronRight />
           </button>
-       
-        
-              
-        
       </div>  
-      {
-       Object.values(me)
-        .filter((me) => me.role === 'coHost')
-        .map((me) => (
-          <div className={styles.coHostCarousel}> 
-            <div key={me.meId} className={styles.slickItem}>        
-            
-                <Video
-                  className={styles.videoPeers}
-                  peerId={me.meId}
-                  track={me.cam!}
-                />
-                 
-              
-                <Audio
-                  peerId={me.meId}
-                  track={me.mic!}
-                />
-           
-            
-            </div>     
-          </div>
-        )) 
-      }            
+                
     </div>
 
   );
