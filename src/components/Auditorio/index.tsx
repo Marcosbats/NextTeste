@@ -56,30 +56,12 @@ export function Auditorio(){
   const { role, displayName } = me;
   const { db } = initializeFirebaseClient();  
   const [idleCount, setIdleCount] = useState(0); 
-  const carouselRef = useRef<AliceCarousel | null>(null);
   const address = useAddress();
+  const transmition = Object.values(peers)
+  .filter((peer) => peer.role === 'coHost');
+  
 
-  const nextSlide = () => {
-    if (carouselRef.current) {
-      carouselRef.current.slideNext();
-    }
-  };
-
-  const prevSlide = () => {
-    if (carouselRef.current) {
-      carouselRef.current.slidePrev();
-    }
-  };
-
-  const responsive = {
-    0: { items: 1 }, 
-    450: { items: 2 }, 
-    950: { items: 3 }, 
-  };
- 
-    const slides  = 
-
-(      
+    const slides  = (      
     <div className={styles.coHostCarousel}> 
       <div key={me.meId} className={styles.meItem}>
         {videoFunction === "stop" ? (        
@@ -298,7 +280,10 @@ export function Auditorio(){
               )}
             </div>         
           </div>
-          
+           
+            <Slider meVideo={videoRef} meAudio={audioRef}/>
+         
+            
           <div className={styles.admButtons}>
             
             <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}>
@@ -319,7 +304,7 @@ export function Auditorio(){
             )} 
           </div>                    
         </div>
-        <Slider meVideo={videoRef} meAudio={audioRef}/>
+       
     </div>    
   );
 };

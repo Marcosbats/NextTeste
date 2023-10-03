@@ -57,7 +57,7 @@ export function Slider({ meVideo, meAudio } : SliderProps){
 
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
-  .map((peer, peerId) => (
+  .map((peer, peerId) => (    
     <div className={styles.coHostCarousel}> 
       <div key={peerId} className={styles.slickItem}>          
         {peer.cam ? (
@@ -77,17 +77,31 @@ export function Slider({ meVideo, meAudio } : SliderProps){
             track={peer.mic!}
           />
         )} 
+      </div> 
       </div>     
-    </div>
-  ));
+     ));
   if (me.role === 'coHost') {
-    slides.unshift(      
-      <div className={styles.coHostCarousel}> 
+    slides.unshift(   
+      
+    <div className={styles.coHostCarousel}>    
         <div key={me.meId} className={styles.meItem}>                 
-        {meVideo && <video ref={meVideo} autoPlay playsInline muted className={styles.videoPeers} />}
+          {meVideo.current ? 
+            <video 
+              ref={meVideo} 
+              autoPlay 
+              playsInline 
+              muted 
+              className={styles.videoPeers} 
+            />
+          : 
+          <div className={styles.videoHostPlay}>
+            <BsFillCameraVideoOffFill className={styles.cameraOff} />
+          </div>
+          }
         {meAudio && <audio ref={meAudio} autoPlay playsInline className="audioElement" />}     
         </div>
-      </div>
+        </div> 
+     
     );
   }
   
@@ -165,10 +179,15 @@ export function Slider({ meVideo, meAudio } : SliderProps){
   return (
     <div className={styles.mainContainer}>
       
-      <div className={styles.auditorioContainer}> 
-      <button onClick={prevSlide} className={styles.carouselButton}>
-            <FaChevronLeft />
-          </button>
+      {slides.length > 2?
+        <button onClick={prevSlide} className={styles.carouselButton}>
+          <FaChevronLeft />
+        </button>
+      :
+      <></>
+      }
+        
+
         <div className={styles.carouselContainer}>
           
            <AliceCarousel
@@ -183,12 +202,16 @@ export function Slider({ meVideo, meAudio } : SliderProps){
             {slides} 
           </AliceCarousel>
           
-        </div>    
-        <button onClick={nextSlide} className={styles.carouselButton}>
-            <FaChevronRight />
-          </button>
-      </div>  
-                
+        </div>  
+        {slides.length > 2?
+           <button onClick={nextSlide} className={styles.carouselButton}>
+              <FaChevronRight />
+           </button>
+        : 
+        <></>
+        }  
+        
+            
     </div>
 
   );
