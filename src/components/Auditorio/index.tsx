@@ -57,10 +57,7 @@ export function Auditorio(){
   const { db } = initializeFirebaseClient();  
   const [idleCount, setIdleCount] = useState(0); 
   const address = useAddress();
-  const transmition = Object.values(peers)
-  .filter((peer) => peer.role === 'coHost');
   
-
     const slides  = (      
     <div className={styles.coHostCarousel}> 
       <div key={me.meId} className={styles.meItem}>
@@ -281,8 +278,7 @@ export function Auditorio(){
             </div>         
           </div>
            
-            <Slider meVideo={videoRef} meAudio={audioRef}/>
-         
+            <Slider meVideo={videoRef} meAudio={audioRef}/>         
             
           <div className={styles.admButtons}>
             

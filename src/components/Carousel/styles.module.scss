@@ -23,7 +23,7 @@
   }
 
   .carouselContainer{
-    width: 645px;
+    width: 650px;
     height: 100%;
     padding: 0 .2rem;
     display: flex;
@@ -32,11 +32,13 @@
    // background: red;
 
    .coHostCarousel{
-    width: 205px;
+    width: 212px;
     height: 180px;
+    //padding: 0 .1rem;  
     display: flex;
     align-items: center;
     justify-content: center;
+   // background: red;
 
    
       .meItem{

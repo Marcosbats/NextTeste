@@ -81,10 +81,9 @@ export function Slider({ meVideo, meAudio } : SliderProps){
       </div>     
      ));
   if (me.role === 'coHost') {
-    slides.unshift(   
-      
+    slides.unshift(         
     <div className={styles.coHostCarousel}>    
-        <div key={me.meId} className={styles.meItem}>                 
+        <div key={me.meId} className={styles.slickItem}>                 
           {meVideo.current ? 
             <video 
               ref={meVideo} 
@@ -100,7 +99,7 @@ export function Slider({ meVideo, meAudio } : SliderProps){
           }
         {meAudio && <audio ref={meAudio} autoPlay playsInline className="audioElement" />}     
         </div>
-        </div> 
+      </div> 
      
     );
   }

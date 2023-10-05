@@ -46,7 +46,6 @@ export function Welcome(){
   const { setDisplayName, error: displayNameError } = useDisplayName();
   const { changePeerRole, kickPeer } = useAcl();
   const { me } = useHuddle01();
-  const { role, displayName } = me;
   const [isOpen, setOpen] = useState(false); // hamburguer
   const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stream:micStream } = useAudio();
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stream:camStream } = useVideo();  
@@ -78,6 +77,7 @@ export function Welcome(){
     450: { items: 2 }, 
     950: { items: 3 }, 
   };
+
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
   .map((peer) => (
@@ -116,6 +116,7 @@ export function Welcome(){
     if (roomState === 'LOBBY') {
       try {
         joinRoom();
+        console.log("Agora", me)
       } catch (error) {
         console.error('Erro:', error);
       }
@@ -301,7 +302,7 @@ export function Welcome(){
   }, [camStream, micStream]);
 
   useEffect(() => {
-    initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
+    initialize('8z2fmFJIBmrxNT2Pb5HwzJZoF9Lvni_2');
     initializeRoomId();   
   }, []);
 
@@ -309,7 +310,7 @@ export function Welcome(){
     <div className={styles.mainContainer}>   
       <div className={styles.statusContainer}>    
         <button className={`${styles.btnStatus} ${roomState === 'ROOM' ? styles.greenButton : styles.redButton}`} />
-        <span>{roomState === 'ROOM'  ? ' Ao Vivo' : ' Em Breve'}</span>
+        <span>{roomState === 'ROOM'  ? ' Ao Vivo' : ' Em Breve' }</span>
         <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
       </div>
       <div className={styles.callContainer}>
@@ -318,7 +319,7 @@ export function Welcome(){
       <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>        
           <div className={styles.transmitionHost}>
-            {videoFunction === 'play' ? (
+            {videoFunction === 'play' && me.role === "host"? (
                 <div className={styles.videoHostPlay}>
                   <BsFillCameraVideoOffFill className={styles.cameraOff} />
                 </div>
@@ -352,7 +353,7 @@ export function Welcome(){
                 .map((peer, index) => (                  
                   <span key={index}>
                     <button onClick={() => kickPeer(peer.peerId)}><BsX className={styles.iconsStop}/></button>
-                    <LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)} 
+                    <LuUser /> {(me.role === 'host') ? ("Anfitrião") : (peer.displayName)} 
                     <button onClick={() => {
                         if (peer.role === 'peer') {
                           changePeerRole(peer.peerId, 'coHost');
@@ -383,7 +384,7 @@ export function Welcome(){
             </button>
           <div className={styles.carouselContainer}>
             
-              <AliceCarousel
+            <AliceCarousel
               autoWidth 
               responsive={responsive} 
               items={slides}

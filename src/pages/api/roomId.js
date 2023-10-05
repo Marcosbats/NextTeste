@@ -13,12 +13,13 @@ export async function createRoom() {
       'https://api.huddle01.com/api/v1/create-room',
       {
         title: 'Huddle01-Test',
-        hostWallets: ['0x4f9116B27Fda2496DCb6AC5bEE4A608dC40187D5'],
+        hostWallets: ['0xF6416a940DF83fFD9122Cc4B70061962B9A7551b'],
       },
       {
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'JbArIwMfUBGW_HnQmNGaIaGqVrSt5xIn',
+          'x-api-key': 'CP34FLALAAUQq_k_1TnVWSoZ15FPthBI',
+          //BAdSLnTDw3WtUUUf299r0GDHNw5nlKy3
         },
       }
     );
