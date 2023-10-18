@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
-import { useDisplayName } from "@huddle01/react/app-utils";
 import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener } from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
 import { toast } from 'react-toastify'
@@ -14,12 +13,14 @@ import { IoLogIn } from "react-icons/io5";
 import { RiSpeakFill } from "react-icons/ri";
 import { Loading } from '../../Genericos/Loading'
 import { createRoom } from '../../../pages/api/roomId';
+import { createToken } from '../../../pages/api/tokenRoom';
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import { ModalEndRoom } from '../../Genericos/ModalEndRoom';
 import initializeFirebaseClient from '../../../services/firebaseConnection'
 import { addDoc, collection, doc, getDoc, getDocs, increment, setDoc, updateDoc } from 'firebase/firestore'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { meAtom } from '@huddle01/react/dist/declarations/src/atoms/me.atom';
 
   //Hamburguer
   interface NavbarProps {
@@ -40,10 +41,9 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 export function Welcome(){ 
   const { initialize, roomState } = useHuddle01();
-  const { joinLobby } = useLobby(); 
-  const { joinRoom, endRoom } = useRoom(); 
+  const { joinLobby, isLobbyJoined, error } = useLobby(); 
+  const { joinRoom } = useRoom(); 
   const { peers } = usePeers();
-  const { setDisplayName, error: displayNameError } = useDisplayName();
   const { changePeerRole, kickPeer } = useAcl();
   const { me } = useHuddle01();
   const [isOpen, setOpen] = useState(false); // hamburguer
@@ -56,10 +56,10 @@ export function Welcome(){
   const [isModalOpen, setIsModalOpen] = useState(false);
 	const { db } = initializeFirebaseClient()
   const carouselRef = useRef<AliceCarousel | null>(null);
-  const [roomCreated, setRoomCreated] = useState(false)
-  
-  const [roomId, setRoomId] = useState("");
-    
+  const [roomCreated, setRoomCreated] = useState(false)  
+ // const [roomId, setRoomId] = useState("");
+   
+   // changePeerRole(me.meId, "host");
   const nextSlide = () => {
     if (carouselRef.current) {
       carouselRef.current.slideNext();
@@ -116,7 +116,6 @@ export function Welcome(){
     if (roomState === 'LOBBY') {
       try {
         joinRoom();
-        console.log("Agora", me)
       } catch (error) {
         console.error('Erro:', error);
       }
@@ -269,14 +268,14 @@ export function Welcome(){
       console.error("Erro ao atualizar statusRoom no banco de dados: ", error);
     }
   });
-
     
-  async function initializeRoomId() {
-      
+  async function initializeRoomId() {     
     const roomId = await createRoom();
-    console.log('ID gerado:', roomId);  
+    console.log('ID gerado:', roomId); 
     sessionStorage.setItem('roomId', roomId);
-    joinLobby(roomId);          
+    const token = await createToken();
+    joinLobby(roomId, token);  
+    
   }     
   
   useEffect(() => {
@@ -314,7 +313,7 @@ export function Welcome(){
         <LuUsers className={styles.Icon}/> {Object.values(peers).length}     
       </div>
       <div className={styles.callContainer}>
-       <h1>10ª Call da Comunidade</h1>               
+       <h1>10ª Call da Comunidade</h1>   
       </div>           
       <div className={styles.auditorioContainer}>     
         <div className={styles.settingsContainer}>        
@@ -402,7 +401,7 @@ export function Welcome(){
             </button>      
           </div> 
         )}         
-        <div className={styles.admButtons}>          
+        <div className={styles.admButtons}>         
           <button onClick={roomButtonClick}>
             {buttonLabelRoom()}
           </button>  
@@ -414,12 +413,11 @@ export function Welcome(){
           <button onClick={audioButtonClick}>
             {buttonLabelAudio()}
           </button> 
-
+         
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
           </Link>
-
-         
+                   
         </div>  
         {isModalOpen &&
           <ModalEndRoom onClose={closeModal}  />  
@@ -428,4 +426,3 @@ export function Welcome(){
     </div>    
   );
 };
-
