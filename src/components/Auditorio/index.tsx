@@ -34,7 +34,7 @@ const navbarClassName = isOpen ? 'navbar' : 'navbar hidden';
 export function Auditorio(){ 
   const { initialize, roomState } = useHuddle01();
   const { joinLobby } = useLobby(); 
-  const { joinRoom, leaveRoom } = useRoom();
+  const { leaveRoom } = useRoom();
   const { peers } = usePeers();  
   const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stream:micStream } = useAudio();
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stream:camStream } = useVideo();    
@@ -44,11 +44,11 @@ export function Auditorio(){
   const audioRef = useRef<HTMLAudioElement | null>(null);  
   const [isOpen, setOpen] = useState(false) // hamburguer
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const [userName, setUserName] = useState('');    
+  const [userName, setUserName] = useState('');  
   const { me } = useHuddle01();
   const { db } = initializeFirebaseClient();  
   const [idleCount, setIdleCount] = useState(0); 
-  
+   
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -127,11 +127,14 @@ export function Auditorio(){
     const lastRoomData = await fetchCurrentRoomData();
 
     if (lastRoomData) {
+
       const roomId = lastRoomData.roomId;
       joinLobby(roomId);
+      console.log("salaaa:",roomId)
+
     }
   }
- 
+
   useEffect(() => {
     if (roomState === 'IDLE') {      
       setIdleCount(idleCount + 1);
@@ -233,10 +236,10 @@ export function Auditorio(){
               )}
             </div>         
           </div>
-          
-            
-              <Slider meVideo={videoRef} meAudio={audioRef} />
-           
+           {Object.values(peers)
+              .filter((peer) => peer.role === 'coHost')  &&(
+            <Slider meVideo={videoRef} meAudio={audioRef}/>  )       
+           }
           <div className={styles.admButtons}>
             
             <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}>

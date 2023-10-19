@@ -2,12 +2,11 @@ import styles from  './styles.module.scss'
 import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
-import { usePeers } from '@huddle01/react/hooks';
+import { useDisplayName } from "@huddle01/react/app-utils";
+import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl } from '@huddle01/react/hooks';
 import { BsFillCameraVideoOffFill } from "react-icons/bs";
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
-import initializeFirebaseClient from '../../services/firebaseConnection'
-import { collection, doc, getDocs, setDoc, } from 'firebase/firestore'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 interface SliderProps { 
@@ -16,12 +15,22 @@ interface SliderProps {
 }
 
 export function Slider({ meVideo, meAudio } : SliderProps){ 
-  const { initialize } = useHuddle01();
+  const { initialize, roomState } = useHuddle01();
+  const { joinLobby } = useLobby(); 
+  const { joinRoom, endRoom } = useRoom(); 
   const { peers } = usePeers();
+  const { setDisplayName, error: displayNameError } = useDisplayName();
+  const { changePeerRole, kickPeer } = useAcl();
   const { me } = useHuddle01();
+  const { role, displayName } = me;
+  const [isOpen, setOpen] = useState(false); // hamburguer
+  const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stream:micStream } = useAudio();
+  const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stream:camStream } = useVideo();  
+  const [videoFunction, setVideoFunction] = useState('play');  
+  const [audioFunction, setAudioFunction] = useState('play'); 
   const videoRef = useRef<HTMLVideoElement | null>(null); 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-	const { db } = initializeFirebaseClient()
+  const audioRef = useRef<HTMLAudioElement | null>(null);   
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const carouselRef = useRef<AliceCarousel | null>(null);
 
   const nextSlide = () => {
@@ -91,52 +100,28 @@ export function Slider({ meVideo, meAudio } : SliderProps){
     );
   }
   
-  async function getNextRoomName() {
-    const querySnapshot = await getDocs(collection(db, 'auditorio'));
-    const roomNames = querySnapshot.docs.map((doc) => doc.id);
-  
-    const highestNumber = roomNames.reduce((max, roomName) => {
-      const match = roomName.match(/^Sala (\d+)$/);
-
-      if (match) {
-        const number = parseInt(match[1]);
-        return number > max ? number : max;
-      }
-      return max;
-      
-    }, 0);
-  
-    const nextRoomNumber = highestNumber + 1;
-    console.log('ultima sala: ', highestNumber);
-    return `Sala ${nextRoomNumber}`;
-  }
-
-  async function createNewRoom() {
-    const roomName = await getNextRoomName();
-  
-    try {
-      const userBase = doc(db, "auditorio", roomName)
-      
-      const currentDate = new Date();
-      const roomId = sessionStorage.getItem('roomId');
-      
-      const userData = {
-        name: "Call", 
-        date: currentDate,  
-        roomId: roomId,   
-        coHost: 0,     
-        
-      }
-      await setDoc(userBase, userData)
-      console.log('Documento criado com ID: ', userBase.id);
-      
-      return roomName;
-    } catch (error) {
-      console.error('Erro ao criar documento: ', error);
+  useEffect(() => {
+    if (camStream) {
+      produceVideo(camStream);
     }
-  }
- 
-  
+  }, [camStream]);
+
+  useEffect(() => {
+    if (micStream) {
+      produceAudio(micStream!); 
+    }
+  }, [micStream]);
+
+  useEffect(() => {
+    if (camStream && videoRef.current) { 
+      videoRef.current.srcObject = camStream;
+    }
+
+    if (micStream && audioRef.current) {
+      audioRef.current.srcObject = micStream;
+    }
+  }, [camStream, micStream]);
+
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
   }, []);
