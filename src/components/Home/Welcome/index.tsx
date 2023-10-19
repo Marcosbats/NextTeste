@@ -5,7 +5,6 @@ import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
 import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener } from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
-import { toast } from 'react-toastify'
 import { LuUsers, LuUser } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
 import { BsMic, BsMicMute,  BsTelephoneX, BsX, BsFillCameraVideoOffFill } from "react-icons/bs";
@@ -18,9 +17,8 @@ import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import { ModalEndRoom } from '../../Genericos/ModalEndRoom';
 import initializeFirebaseClient from '../../../services/firebaseConnection'
-import { addDoc, collection, doc, getDoc, getDocs, increment, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { meAtom } from '@huddle01/react/dist/declarations/src/atoms/me.atom';
 
   //Hamburguer
   interface NavbarProps {
@@ -41,7 +39,7 @@ import { meAtom } from '@huddle01/react/dist/declarations/src/atoms/me.atom';
 
 export function Welcome(){ 
   const { initialize, roomState } = useHuddle01();
-  const { joinLobby, isLobbyJoined, error } = useLobby(); 
+  const { joinLobby } = useLobby(); 
   const { joinRoom } = useRoom(); 
   const { peers } = usePeers();
   const { changePeerRole, kickPeer } = useAcl();
@@ -57,9 +55,7 @@ export function Welcome(){
 	const { db } = initializeFirebaseClient()
   const carouselRef = useRef<AliceCarousel | null>(null);
   const [roomCreated, setRoomCreated] = useState(false)  
- // const [roomId, setRoomId] = useState("");
-   
-   // changePeerRole(me.meId, "host");
+
   const nextSlide = () => {
     if (carouselRef.current) {
       carouselRef.current.slideNext();
@@ -107,10 +103,6 @@ export function Welcome(){
   const closeModal = () => {
     setIsModalOpen(false);
   };
-
-  const handleLinkClick = () => { //hamburguer
-    setOpen(false);
-  }; 
 
   const roomButtonClick = () => {
     if (roomState === 'LOBBY') {
@@ -352,7 +344,7 @@ export function Welcome(){
                 .map((peer, index) => (                  
                   <span key={index}>
                     <button onClick={() => kickPeer(peer.peerId)}><BsX className={styles.iconsStop}/></button>
-                    <LuUser /> {(me.role === 'host') ? ("Anfitrião") : (peer.displayName)} 
+                    <LuUser /> {(peer.role === 'host') ? ("Anfitrião") : (peer.displayName)} 
                     <button onClick={() => {
                         if (peer.role === 'peer') {
                           changePeerRole(peer.peerId, 'coHost');

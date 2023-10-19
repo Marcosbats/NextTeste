@@ -3,22 +3,16 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
-import { useLobby, useAudio, useVideo, useRoom, useEventListener, usePeers, useAcl } from '@huddle01/react/hooks';
-import { useDisplayName, useAppUtils } from "@huddle01/react/app-utils";
+import { useLobby, useAudio, useVideo, useRoom, usePeers } from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
-import { toast } from 'react-toastify'
 import { LuUser, LuUsers } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash } from "react-icons/hi2";
 import { BsFillCameraVideoOffFill, BsMic, BsMicMute, BsTelephoneX } from "react-icons/bs";
 import { ModalAuditorio } from '../../components/Genericos/Modal';
-import AliceCarousel from 'react-alice-carousel';
-import 'react-alice-carousel/lib/alice-carousel.css';
 import { ModalKickerPeer } from '../Genericos/ModalKickerPeer';
 import { Slider } from '../Carousel'
 import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
 import initializeFirebaseClient from '@/src/services/firebaseConnection';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { ConnectWallet, useAddress } from '@thirdweb-dev/react';
 
 //Hamburguer
 interface NavbarProps {
@@ -50,39 +44,11 @@ export function Auditorio(){
   const audioRef = useRef<HTMLAudioElement | null>(null);  
   const [isOpen, setOpen] = useState(false) // hamburguer
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const [userName, setUserName] = useState('');  
-  const { setDisplayName, error: displayNameError } = useDisplayName();
+  const [userName, setUserName] = useState('');    
   const { me } = useHuddle01();
-  const { role, displayName } = me;
   const { db } = initializeFirebaseClient();  
   const [idleCount, setIdleCount] = useState(0); 
-  const address = useAddress();
   
-    const slides  = (      
-    <div className={styles.coHostCarousel}> 
-      <div key={me.meId} className={styles.meItem}>
-        {videoFunction === "stop" ? (        
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className={styles.videoPeers}
-          />
-        ):(
-          <div className={styles.videoHostPlay}>
-          <BsFillCameraVideoOffFill className={styles.cameraOff} />
-          </div>)}       
-        <audio
-          ref={audioRef}
-          autoPlay
-          playsInline
-          className={styles.audioElement}
-        />
-      </div>
-      </div>
-    )
- 
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -90,10 +56,6 @@ export function Auditorio(){
   const handleNameSubmit = (name: any) => { //Modal
     setUserName(name);
   };
-
-  const handleLinkClick = () => { //hamburguer
-    setOpen(false);
-  }; 
 
   const videoButtonClick = () => {
     if (videoFunction === 'play') {
@@ -149,7 +111,6 @@ export function Auditorio(){
     try {
       const querySnapshot = await getDocs(resultado);
       if (!querySnapshot.empty) {
-        // Obtem o documento encontrado
         const document = querySnapshot.docs[0].data();
         return document;
       } else {
@@ -166,16 +127,11 @@ export function Auditorio(){
     const lastRoomData = await fetchCurrentRoomData();
 
     if (lastRoomData) {
-
-      const roomName = lastRoomData.name;
-      const date = lastRoomData.date;
       const roomId = lastRoomData.roomId;
       joinLobby(roomId);
-      console.log("salaaa:",roomId)
-
     }
   }
-
+ 
   useEffect(() => {
     if (roomState === 'IDLE') {      
       setIdleCount(idleCount + 1);
@@ -277,9 +233,10 @@ export function Auditorio(){
               )}
             </div>         
           </div>
-           
-            <Slider meVideo={videoRef} meAudio={audioRef}/>         
+          
             
+              <Slider meVideo={videoRef} meAudio={audioRef} />
+           
           <div className={styles.admButtons}>
             
             <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}>

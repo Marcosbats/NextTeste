@@ -1,15 +1,13 @@
 import styles from  './styles.module.scss'
-import Link from 'next/link';
-import { createRef, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
-import { useDisplayName } from "@huddle01/react/app-utils";
-import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener } from '@huddle01/react/hooks';
+import { usePeers } from '@huddle01/react/hooks';
 import { BsFillCameraVideoOffFill } from "react-icons/bs";
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import initializeFirebaseClient from '../../services/firebaseConnection'
-import { addDoc, collection, doc, getDoc, getDocs, increment, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDocs, setDoc, } from 'firebase/firestore'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 interface SliderProps { 
@@ -18,22 +16,11 @@ interface SliderProps {
 }
 
 export function Slider({ meVideo, meAudio } : SliderProps){ 
-  const { initialize, roomState } = useHuddle01();
-  const { joinLobby } = useLobby(); 
-  const { joinRoom, endRoom } = useRoom(); 
+  const { initialize } = useHuddle01();
   const { peers } = usePeers();
-  const { setDisplayName, error: displayNameError } = useDisplayName();
-  const { changePeerRole, kickPeer } = useAcl();
   const { me } = useHuddle01();
-  const { role, displayName } = me;
-  const [isOpen, setOpen] = useState(false); // hamburguer
-  const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stream:micStream } = useAudio();
-  const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stream:camStream } = useVideo();  
-  const [videoFunction, setVideoFunction] = useState('play');  
-  const [audioFunction, setAudioFunction] = useState('play'); 
   const videoRef = useRef<HTMLVideoElement | null>(null); 
-  const audioRef = useRef<HTMLAudioElement | null>(null);   
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 	const { db } = initializeFirebaseClient()
   const carouselRef = useRef<AliceCarousel | null>(null);
 
@@ -149,28 +136,7 @@ export function Slider({ meVideo, meAudio } : SliderProps){
     }
   }
  
-  useEffect(() => {
-    if (camStream) {
-      produceVideo(camStream);
-    }
-  }, [camStream]);
-
-  useEffect(() => {
-    if (micStream) {
-      produceAudio(micStream!); 
-    }
-  }, [micStream]);
-
-  useEffect(() => {
-    if (camStream && videoRef.current) { 
-      videoRef.current.srcObject = camStream;
-    }
-
-    if (micStream && audioRef.current) {
-      audioRef.current.srcObject = micStream;
-    }
-  }, [camStream, micStream]);
-
+  
   useEffect(() => {
     initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
   }, []);
