@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
-import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener } from '@huddle01/react/hooks';
+import { useLobby, useAudio, useVideo, useRoom, usePeers, useAcl, useEventListener, useRecording} from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
 import { LuUsers, LuUser } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash} from "react-icons/hi2";
@@ -19,6 +19,7 @@ import { ModalEndRoom } from '../../Genericos/ModalEndRoom';
 import initializeFirebaseClient from '../../../services/firebaseConnection'
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { Carrossel } from '../../Carroussel';
 
   //Hamburguer
   interface NavbarProps {
@@ -47,6 +48,7 @@ export function Welcome(){
   const [isOpen, setOpen] = useState(false); // hamburguer
   const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stream:micStream } = useAudio();
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stream:camStream } = useVideo();  
+  const { startRecording, stopRecording, isStarting, inProgress, isStopping, error } = useRecording(); 
   const [videoFunction, setVideoFunction] = useState('play');  
   const [audioFunction, setAudioFunction] = useState('play'); 
   const videoRef = useRef<HTMLVideoElement | null>(null); 
@@ -54,7 +56,8 @@ export function Welcome(){
   const [isModalOpen, setIsModalOpen] = useState(false);
 	const { db } = initializeFirebaseClient()
   const carouselRef = useRef<AliceCarousel | null>(null);
-  const [roomCreated, setRoomCreated] = useState(false)  
+  const [roomCreated, setRoomCreated] = useState(false) 
+  const url = startRecording; // Pode não ser uma string
 
   const nextSlide = () => {
     if (carouselRef.current) {
@@ -76,9 +79,9 @@ export function Welcome(){
 
   const slides = Object.values(peers)
   .filter((peer) => peer.role === 'coHost')
-  .map((peer) => (
+  .map((peer, peerId) => (
     <div className={styles.coHostCarousel}> 
-      <div key={peer.peerId} className={styles.slickItem}>          
+      <div key={peerId} className={styles.slickItem}>          
         {peer.cam ? (
           <Video
             className={styles.videoPeers}
@@ -201,8 +204,7 @@ export function Welcome(){
         const number = parseInt(match[1]);
         return number > max ? number : max;
       }
-      return max;
-      
+      return max;      
     }, 0);
   
     const nextRoomNumber = highestNumber + 1;
@@ -219,11 +221,14 @@ export function Welcome(){
       
       const currentDate = new Date();
       const roomId = sessionStorage.getItem('roomId');
-      
+      const token = sessionStorage.getItem('token');
+           
       const roomData = { 
         date: currentDate,  
-        roomId: roomId,     
-        excludedUsers: [], 
+        roomId: roomId,
+        token: token,     
+        coHost: [], 
+        slides: slides,
         stateRoom : "open",      
       }
       await setDoc(roomRef, roomData)
@@ -235,6 +240,45 @@ export function Welcome(){
       console.error('Erro ao criar documento: ', error);
     }
   }
+  
+  async function updateCoHostList(coHostListCurrency : string[]) {
+    const roomName = sessionStorage.getItem('roomName');
+    console.log("co db: ", coHostListCurrency)
+
+    try {
+      if (typeof roomName === 'string') {
+        const roomRef = doc(db, "auditorio", roomName);
+        const coHostList = coHostListCurrency;
+        console.log("co db: ", coHostListCurrency)
+
+        const roomSnapshot = await getDoc(roomRef);
+        if (roomSnapshot.exists()) {
+          // Atualize o campo 'coHost' no Firestore com o novo array
+          await updateDoc(roomRef, { coHost: coHostList });
+          console.log(`Lista de co-hosts atualizada para ${roomName}`);
+          console.log('Lista', coHostListCurrency);
+        } else {
+          console.error("Sala não encontrada no banco de dados.");
+        }
+      } else {
+      console.error('roomName não é uma string válida.');
+    }
+    } catch (error) {
+      console.error(`Erro ao atualizar a lista de co-hosts para ${roomName}: ${error}`);
+    }
+  }
+  
+  // Aguarde a conclusão de changePeerRole antes de continuar
+  const coHostListCurrency = Object.values(peers)
+    .filter((peer) => peer.role === 'coHost')
+    .map((peer) => peer.peerId);
+ 
+  useEventListener("room:peer-role-update", () => {
+    updateCoHostList(coHostListCurrency);
+    console.log('currency', coHostListCurrency);
+  }
+  )
+  
   
   useEventListener("room:me-left", async () => {
     const roomName = sessionStorage.getItem('roomName');
@@ -266,6 +310,7 @@ export function Welcome(){
     console.log('ID gerado:', roomId); 
     sessionStorage.setItem('roomId', roomId);
     const token = await createToken();
+    //sessionStorage.setItem('token', token)
     joinLobby(roomId, token);  
     
   }     
@@ -348,10 +393,10 @@ export function Welcome(){
                     <button onClick={() => {
                         if (peer.role === 'peer') {
                           changePeerRole(peer.peerId, 'coHost');
-                        } else if (peer.role === 'coHost')  {
+                        } else {
                           changePeerRole(peer.peerId, 'peer');
                         }
-                      }}>
+                    }}>
                       {(peer.role === 'peer') ? 
                         <>
                           <RiSpeakFill className={styles.iconsSpeakGreen} />
@@ -405,16 +450,27 @@ export function Welcome(){
           <button onClick={audioButtonClick}>
             {buttonLabelAudio()}
           </button> 
+
+          <button onClick={() =>
+              startRecording(`${window.location.href}rec/`)}>
+            START
+          </button>
+         
+          <button onClick={stopRecording}>
+            STOP
+          </button>
          
           <Link href="/auditorio" target='blank' passHref>
           ENTRAR NO EVENTO
           </Link>
-                   
+          {isStarting ? "Recording is starting": "NÃO DEU"} 
+         
         </div>  
         {isModalOpen &&
           <ModalEndRoom onClose={closeModal}  />  
         }
-      </div>            
+      </div>   
+      <Carrossel/>
     </div>    
   );
 };

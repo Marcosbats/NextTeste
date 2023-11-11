@@ -3,16 +3,19 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useHuddle01 } from '@huddle01/react';
 import { Video, Audio } from '@huddle01/react/components';
-import { useLobby, useAudio, useVideo, useRoom, usePeers } from '@huddle01/react/hooks';
+import { useLobby, useAudio, useVideo, useRoom, usePeers, useEventListener } from '@huddle01/react/hooks';
 import { Divide as Hamburger } from 'hamburger-react'
 import { LuUser, LuUsers } from "react-icons/lu";
 import { HiOutlineVideoCamera, HiOutlineVideoCameraSlash } from "react-icons/hi2";
 import { BsFillCameraVideoOffFill, BsMic, BsMicMute, BsTelephoneX } from "react-icons/bs";
 import { ModalAuditorio } from '../../components/Genericos/Modal';
 import { ModalKickerPeer } from '../Genericos/ModalKickerPeer';
-import { Slider } from '../Carousel'
-import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
+import { collection, doc, getDocs, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import initializeFirebaseClient from '@/src/services/firebaseConnection';
+import { Carrossel } from '../Carroussel';
+import AliceCarousel from 'react-alice-carousel';
+import 'react-alice-carousel/lib/alice-carousel.css';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 //Hamburguer
 interface NavbarProps {
@@ -47,8 +50,59 @@ export function Auditorio(){
   const [userName, setUserName] = useState('');  
   const { me } = useHuddle01();
   const { db } = initializeFirebaseClient();  
-  const [idleCount, setIdleCount] = useState(0); 
-   
+  const [idleCount, setIdleCount] = useState(0);   
+  const carouselRef = useRef<AliceCarousel | null>(null);
+  let coHost: string | string[] = [];
+
+  
+  async function fetchCurrentRoomData() {
+    const collectionRef = collection(db, "auditorio");
+
+    // Consulta os documentos ordenados por um campo (por exemplo, data) em ordem decrescente
+    const resultado = query(collectionRef, orderBy("date", "desc"), limit(1));
+
+    try {
+      const querySnapshot = await getDocs(resultado);
+      if (!querySnapshot.empty) {
+        const document = querySnapshot.docs[0].data();
+        return document;
+      } else {
+        console.log("Nenhum documento encontrado na coleção 'auditorio'.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Erro ao buscar o último documento: ", error);
+      return null;
+    }
+  }
+
+  async function renderCurrentRoomData() {
+    const lastRoomData = await fetchCurrentRoomData();
+
+    if (lastRoomData) {
+      const roomId = lastRoomData.roomId;
+      const token = lastRoomData.token;
+      coHost = lastRoomData.coHost;
+      joinLobby(roomId); 
+      console.log("eteste ",coHost)
+     const roomRef = doc(db, 'auditorio', roomId);    
+      // Configurar uma escuta em tempo real no documento
+     const unsubscribe = onSnapshot(roomRef, (doc) => {
+      if (doc.exists()) {
+        const roomData = doc.data();
+        if (roomData) {
+          coHost = roomData.coHost;
+          console.log("eteste db",coHost)
+      }
+    }
+  }
+)
+}}
+  const slides = 
+  Object.values(peers)
+  .filter((peer) => peer.cam || peer.mic)
+  console.log("sauditorio ", slides)
+  
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -83,7 +137,6 @@ export function Auditorio(){
     if (audioFunction === 'play') {
       try {
         fetchAudioStream();
-        //produceAudio(micStream!);
         setAudioFunction('stop');
       } catch (error) {
         console.error('Erro:', error);
@@ -102,44 +155,49 @@ export function Auditorio(){
     } 
   };
 
-  async function fetchCurrentRoomData() {
-    const collectionRef = collection(db, "auditorio");
-
-    // Consulta os documentos ordenados por um campo (por exemplo, data) em ordem decrescente
-    const resultado = query(collectionRef, orderBy("date", "desc"), limit(1));
-
-    try {
-      const querySnapshot = await getDocs(resultado);
-      if (!querySnapshot.empty) {
-        const document = querySnapshot.docs[0].data();
-        return document;
-      } else {
-        console.log("Nenhum documento encontrado na coleção 'auditorio'.");
-        return null;
-      }
-    } catch (error) {
-      console.error("Erro ao buscar o último documento: ", error);
-      return null;
-    }
-  }
-
-  async function renderCurrentRoomData() {
+  async function renderCoHostCurrent() {
     const lastRoomData = await fetchCurrentRoomData();
 
     if (lastRoomData) {
-
-      const roomId = lastRoomData.roomId;
-      joinLobby(roomId);
-      console.log("salaaa:",roomId)
-
+      const roomId = lastRoomData.roomId;      
+      coHost = lastRoomData.coHost;      
+      console.log("eteste ::",coHost)
+      const roomRef = doc(db, 'auditorio', roomId);    
+        // Configurar uma escuta em tempo real no documento
+      const unsubscribe = onSnapshot(roomRef, (doc) => {
+        if (doc.exists()) {
+          const roomData = doc.data();
+        if (roomData) {
+          coHost = roomData.coHost;
+          console.log("eteste db",coHost)
+      }
     }
-  }
-
+  })
+}
+}
+ 
+  useEventListener("room:peer-role-update", () => {
+    const users = Object.values(peers)
+    .filter((peer) => peer.role === 'coHost') 
+    console.log("users:: ", users)
+    renderCoHostCurrent()
+    }
+  )
+  
   useEffect(() => {
     if (roomState === 'IDLE') {      
       setIdleCount(idleCount + 1);
     }
   }, [roomState]);
+
+  useEffect(() => {
+    if (me.role === 'peer') {
+      setVideoFunction('play');
+      stopVideoStream();
+      setAudioFunction('play');
+      stopAudioStream();            
+    }  
+  })
 
   useEffect(() => {
     if (camStream && videoRef.current) { 
@@ -149,7 +207,7 @@ export function Auditorio(){
     if (micStream && audioRef.current) { 
       audioRef.current.srcObject = micStream;
     }
-    }, [camStream, micStream]);   
+  }, [camStream, micStream]);   
 
   useEffect(() => {
     if (camStream) {
@@ -164,7 +222,7 @@ export function Auditorio(){
   }, [micStream]);
 
   useEffect(() => {
-    initialize('7pJkjKXWIJQpih8wHmsO5GHG2W-YKEv7');
+    initialize('8z2fmFJIBmrxNT2Pb5HwzJZoF9Lvni_2');
     renderCurrentRoomData();
   }, []);
 
@@ -183,13 +241,12 @@ export function Auditorio(){
         </>
       )}    
 
-      
         <div className={styles.statusContainer}>
           <button className={`${styles.btnStatus} ${roomState.valueOf() === 'ROOM' ? styles.greenButton : styles.redButton}`} />
           <span>{roomState.valueOf() === 'ROOM' ? ' Ao Vivo' : ' Em Breve'}</span>  <LuUsers className={styles.Icon} /> {Object.values(peers).length}
         </div>
         <div className={styles.callContainer}>
-          <h1>10ª Call da Comunidade</h1> 
+          <h1>10ª Call da Comunidade</h1>         
         </div>
         <div className={styles.auditorioContainer}>
           <div className={styles.settingsContainer}>
@@ -236,18 +293,21 @@ export function Auditorio(){
               )}
             </div>         
           </div>
-           {Object.values(peers)
-              .filter((peer) => peer.role === 'coHost')  &&(
-            <Slider meVideo={videoRef} meAudio={audioRef}/>  )       
-           }
+          { 
+            (slides.length > 0 || camStream || micStream) &&
+              (            
+                <Carrossel meVideo={videoRef} meAudio={audioRef}/>
+              )
+          }
+                  
           <div className={styles.admButtons}>
             
             <Link href='https://ibeed.xyz/comunidade' onClick={leaveRoom}>
               <BsTelephoneX className={styles.iconsStop}/> 
               Sair da Sala
-            </Link>        
+            </Link>    
 
-            { me.role === 'coHost' &&(
+            { me.role === 'coHost' && (
               <>
                 <button onClick={videoButtonClick}>
                   {buttonLabelVideo()}
@@ -257,10 +317,10 @@ export function Auditorio(){
                   {buttonLabelAudio()}
                 </button> 
               </>
-            )} 
+            )         
+           } 
           </div>                    
         </div>
-       
     </div>    
   );
 };

@@ -1,6 +1,8 @@
 import Head from 'next/head'
 import { Header } from '../../components/Genericos/Header'
 import { Footer } from '../../components/Genericos/Footer'
+import { Carrossel } from '@/src/components/Carroussel' 
+
 
 export default function Carousel(){
   
@@ -25,7 +27,8 @@ export default function Carousel(){
       
       <main >
           <Header />            
-                 
+          
+          <Carrossel />
           <Footer />        
       </main>      
     </div>

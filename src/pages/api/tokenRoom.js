@@ -19,7 +19,8 @@ export async function createToken() {
   console.log('Resposta create Token:', response.data);
 
   if (response.status === 200) {
-    const token = response.data.token;
+    const token = response.data.token.toString();
+    sessionStorage.setItem('token', token);
     return token;
   } else {
     console.error('Erro ao criar Token');
