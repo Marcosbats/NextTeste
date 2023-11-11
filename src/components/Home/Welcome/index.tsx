@@ -470,7 +470,6 @@ export function Welcome(){
           <ModalEndRoom onClose={closeModal}  />  
         }
       </div>   
-      <Carrossel/>
     </div>    
   );
 };
