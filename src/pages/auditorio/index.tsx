@@ -3,7 +3,6 @@ import styles from './styles.module.scss'
 import { Auditorio } from '../../components/Auditorio'
 import { Header } from '../../components/Genericos/Header'
 import { Footer } from '../../components/Genericos/Footer'
-import { Carrossel } from '@/src/components/Carroussel'
 
 export default function Call(){
   
@@ -29,7 +28,6 @@ export default function Call(){
       <main className={styles.mainContainer}>
           <Header />            
           <Auditorio /> 
-          <Carrossel />
           <Footer />        
       </main>      
     </div>
