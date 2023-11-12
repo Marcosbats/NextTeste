@@ -12,10 +12,10 @@ import { ModalAuditorio } from '../../components/Genericos/Modal';
 import { ModalKickerPeer } from '../Genericos/ModalKickerPeer';
 import { collection, doc, getDocs, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import initializeFirebaseClient from '@/src/services/firebaseConnection';
-import { Carrossel } from '../../components/Carroussel';
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { Carrossel } from '../Carroussel';
 
 //Hamburguer
 interface NavbarProps {
