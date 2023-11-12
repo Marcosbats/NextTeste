@@ -19,7 +19,6 @@ import { ModalEndRoom } from '../../Genericos/ModalEndRoom';
 import initializeFirebaseClient from '../../../services/firebaseConnection'
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { Carrossel } from '../../Carroussel';
 
   //Hamburguer
   interface NavbarProps {
