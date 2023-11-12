@@ -12,10 +12,7 @@ import { ModalAuditorio } from '../../components/Genericos/Modal';
 import { ModalKickerPeer } from '../Genericos/ModalKickerPeer';
 import { collection, doc, getDocs, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import initializeFirebaseClient from '@/src/services/firebaseConnection';
-import AliceCarousel from 'react-alice-carousel';
-import 'react-alice-carousel/lib/alice-carousel.css';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { Carrossel } from '../Carroussel';
+import { Carrossel } from '@/src/components/Carroussel';
 
 //Hamburguer
 interface NavbarProps {
@@ -51,7 +48,6 @@ export function Auditorio(){
   const { me } = useHuddle01();
   const { db } = initializeFirebaseClient();  
   const [idleCount, setIdleCount] = useState(0);   
-  const carouselRef = useRef<AliceCarousel | null>(null);
   let coHost: string | string[] = [];
 
   
