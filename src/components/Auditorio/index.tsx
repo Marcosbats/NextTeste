@@ -12,7 +12,7 @@ import { ModalAuditorio } from '../../components/Genericos/Modal';
 import { ModalKickerPeer } from '../Genericos/ModalKickerPeer';
 import { collection, doc, getDocs, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import initializeFirebaseClient from '@/src/services/firebaseConnection';
-import { Carrossel } from '@/src/components/Carroussel';
+//import { Carrossel } from '@/src/components/Carroussel';
 
 //Hamburguer
 interface NavbarProps {
@@ -289,12 +289,12 @@ export function Auditorio(){
               )}
             </div>         
           </div>
-          { 
+          {/*
             (slides.length > 0 || camStream || micStream) &&
               (            
                 <Carrossel meVideo={videoRef} meAudio={audioRef}/>
               )
-          }
+              */}
                   
           <div className={styles.admButtons}>
             
