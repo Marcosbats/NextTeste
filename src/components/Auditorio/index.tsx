@@ -166,11 +166,10 @@ export function Auditorio(){
         if (roomData) {
           coHost = roomData.coHost;
           console.log("eteste db",coHost)
-      }
+        }} 
+      )
     }
-  })
-}
-}
+  }
  
   useEventListener("room:peer-role-update", () => {
     const users = Object.values(peers)

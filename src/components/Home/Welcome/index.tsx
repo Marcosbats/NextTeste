@@ -47,7 +47,7 @@ export function Welcome(){
   const [isOpen, setOpen] = useState(false); // hamburguer
   const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stream:micStream } = useAudio();
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stream:camStream } = useVideo();  
-  const { startRecording, stopRecording, isStarting, inProgress, isStopping, error } = useRecording(); 
+  const { startRecording, stopRecording, isStarting,  data , inProgress, isStopping, error } = useRecording(); 
   const [videoFunction, setVideoFunction] = useState('play');  
   const [audioFunction, setAudioFunction] = useState('play'); 
   const videoRef = useRef<HTMLVideoElement | null>(null); 
@@ -336,6 +336,12 @@ export function Welcome(){
     }
   }, [camStream, micStream]);
 
+   
+  useEffect(() => {      
+    console.log({data});
+  },[data])
+
+
   useEffect(() => {
     initialize('8z2fmFJIBmrxNT2Pb5HwzJZoF9Lvni_2');
     initializeRoomId();   
@@ -451,7 +457,7 @@ export function Welcome(){
           </button> 
 
           <button onClick={() =>
-              startRecording(`${window.location.href}rec/`)}>
+              startRecording(`${window.location.href}rec/${sessionStorage.getItem('roomId')}`)}>
             START
           </button>
          
