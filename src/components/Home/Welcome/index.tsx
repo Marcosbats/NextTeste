@@ -56,7 +56,7 @@ export function Welcome(){
 	const { db } = initializeFirebaseClient()
   const carouselRef = useRef<AliceCarousel | null>(null);
   const [roomCreated, setRoomCreated] = useState(false) 
-  const roomId = sessionStorage.getItem('roomId');
+  
 
   const nextSlide = () => {
     if (carouselRef.current) {
@@ -453,7 +453,7 @@ export function Welcome(){
           </button> 
 
           <button onClick={() =>
-              startRecording(`${window.location.href}rec/${roomId}`)}>
+              startRecording(`${window.location.href}rec/${sessionStorage.getItem('roomId')}`)}>
             START
           </button>
          
