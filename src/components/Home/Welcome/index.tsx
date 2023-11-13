@@ -459,7 +459,7 @@ export function Welcome(){
             START
           </button>
          
-          <button onClick={() => stopRecording()}>
+          <button onClick={() => stopRecording}>
             STOP
           </button>
          
