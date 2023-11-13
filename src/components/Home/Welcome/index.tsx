@@ -456,7 +456,7 @@ export function Welcome(){
 
           <button onClick={() =>
               startRecording(`${window.location.href}rec/${sessionStorage.getItem('roomId')}`)}>
-            START
+             {`STARTerror: ${error}`}
           </button>
          
           <button onClick={() => stopRecording}>
@@ -474,8 +474,9 @@ export function Welcome(){
           <ModalEndRoom onClose={closeModal}  />  
         }
       </div> 
+      
       <div className="break-words">{JSON.stringify(data)}</div>
-
+     
     </div>    
   );
 };
