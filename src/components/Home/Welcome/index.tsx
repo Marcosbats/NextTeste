@@ -47,7 +47,7 @@ export function Welcome(){
   const [isOpen, setOpen] = useState(false); // hamburguer
   const { fetchAudioStream, stopAudioStream, error: micError, produceAudio, stream:micStream } = useAudio();
   const { fetchVideoStream, stopVideoStream, error: camError, produceVideo, stream:camStream } = useVideo();  
-  const { startRecording, stopRecording, isStarting,  data: recordingData, inProgress, isStopping, error } = useRecording(); 
+  const { startRecording, stopRecording, isStarting,  data, inProgress, isStopping, error } = useRecording(); 
   const [videoFunction, setVideoFunction] = useState('play');  
   const [audioFunction, setAudioFunction] = useState('play'); 
   const videoRef = useRef<HTMLVideoElement | null>(null); 
@@ -336,7 +336,9 @@ export function Welcome(){
     }
   }, [camStream, micStream]);
 
-   
+  useEffect(() => {
+    console.log({data});
+  },[data])
 
   useEffect(() => {
     initialize('8z2fmFJIBmrxNT2Pb5HwzJZoF9Lvni_2');
@@ -472,7 +474,7 @@ export function Welcome(){
           <ModalEndRoom onClose={closeModal}  />  
         }
       </div> 
-      <div className="break-words">{JSON.stringify(recordingData)}</div>
+      <div className="break-words">{JSON.stringify(data)}</div>
 
     </div>    
   );
